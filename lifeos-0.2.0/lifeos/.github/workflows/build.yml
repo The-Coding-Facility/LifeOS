@@ -3,6 +3,7 @@
 # Bei einem Tag wie v0.2.0 entsteht zusätzlich ein Release mit beiden Dateien.
 
 name: Build
+
 on:
   push:
     branches: [main]
