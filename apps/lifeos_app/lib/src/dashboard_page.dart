@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lifeos_calendar/lifeos_calendar.dart';
+import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
@@ -29,7 +31,9 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tiles = <Widget>[
+      CalendarDashboardTile(onOpen: () => context.go(Routes.calendar)),
       TasksDashboardTile(onOpenAll: () => context.go(Routes.tasks)),
+      FinanceDashboardTile(onOpen: () => context.go(Routes.finance)),
       NotesDashboardTile(
         onOpenAll: () => context.go(Routes.notes),
         onOpenNote: (id) => context.go(Routes.note(id)),
@@ -55,15 +59,17 @@ class DashboardPage extends StatelessWidget {
               if (columns == 1)
                 for (final tile in tiles) ...[tile, const SizedBox(height: 16)]
               else
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (var i = 0; i < tiles.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 16),
-                      Expanded(child: tiles[i]),
+                for (var row = 0; row < tiles.length; row += 2) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: tiles[row]),
+                      const SizedBox(width: 16),
+                      Expanded(child: row + 1 < tiles.length ? tiles[row + 1] : const SizedBox()),
                     ],
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
             ],
           );
         },

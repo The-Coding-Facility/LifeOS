@@ -135,3 +135,103 @@ class Notes extends Table with SyncColumns {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// Tags aller Module. `scope` trennt die Bereiche (`calendar`, `finance`).
+/// Die ID entsteht deterministisch aus Bereich und Name, damit derselbe Tag
+/// auf zwei Geräten zum selben Datensatz wird.
+@DataClassName('TagRow')
+class Tags extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get scope => text()();
+  TextColumn get name => text()();
+
+  /// Index in der festen Farbpalette des Design-Systems.
+  IntColumn get colorIndex => integer().withDefault(const Constant(0))();
+
+  /// Monatsbudget in Cent, nur bei Finanz-Tags.
+  IntColumn get monthlyLimitCents => integer().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Termine. Zeitpunkte in UTC-Millisekunden; ganztägige Termine beginnen um
+/// UTC-Mitternacht ihres Kalendertags, das Ende ist exklusiv.
+@DataClassName('CalendarEventRow')
+class CalendarEvents extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get location => text().nullable()();
+  BoolColumn get allDay => boolean().withDefault(const Constant(false))();
+  IntColumn get startAt => integer()();
+  IntColumn get endAt => integer()();
+
+  /// JSON `{freq, interval, weekdays, until}` oder leer.
+  TextColumn get recurrence => text().nullable()();
+
+  /// JSON-Liste ausgelassener Vorkommen (`yyyy-mm-dd`).
+  TextColumn get exdates => text().withDefault(const Constant('[]'))();
+
+  /// JSON-Liste von Tag-IDs.
+  TextColumn get tagIds => text().withDefault(const Constant('[]'))();
+
+  /// Minuten vor Beginn; leer = keine Erinnerung.
+  IntColumn get reminderMinutes => integer().nullable()();
+
+  /// JSON-Liste von Geräte-IDs; `["*"]` = alle Geräte.
+  TextColumn get reminderDevices => text().withDefault(const Constant('["*"]'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Buchungen. `kind`: `income`, `expense`, `saving`, `withdrawal`.
+/// Der Betrag ist immer positiv, das Vorzeichen folgt aus `kind`.
+@DataClassName('FinanceEntryRow')
+class FinanceEntries extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get kind => text()();
+  IntColumn get amountCents => integer()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+
+  /// Buchungsdatum `yyyy-mm-dd`.
+  TextColumn get date => text()();
+  TextColumn get tagIds => text().withDefault(const Constant('[]'))();
+  TextColumn get savingGoalId => text().nullable()();
+
+  /// Gesetzt, wenn die Buchung aus einem Dauerauftrag stammt.
+  TextColumn get recurringId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Daueraufträge. `freq`: `weekly`, `monthly`, `yearly`.
+@DataClassName('FinanceRecurringRow')
+class FinanceRecurring extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get kind => text()();
+  IntColumn get amountCents => integer()();
+  TextColumn get title => text().withDefault(const Constant(''))();
+  TextColumn get tagIds => text().withDefault(const Constant('[]'))();
+  TextColumn get freq => text()();
+  IntColumn get intervalCount => integer().withDefault(const Constant(1))();
+  TextColumn get startDate => text()();
+  TextColumn get endDate => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Sparziele.
+@DataClassName('SavingGoalRow')
+class SavingGoals extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  IntColumn get targetCents => integer()();
+  TextColumn get targetDate => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

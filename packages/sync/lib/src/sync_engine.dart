@@ -16,7 +16,8 @@ import 'sync_errors.dart';
 /// - Waren die Änderungen gleichzeitig (Vorgänger passt nicht) und die Werte
 ///   verschieden, wird der unterlegene Wert als Konflikt gespeichert.
 /// - Löschen ist eine eigene Feldgruppe. Spätere Bearbeitungen machen eine
-///   Löschung nicht rückgängig.
+///   Löschung nicht rückgängig, nur ein ausdrückliches `deleted: false` mit
+///   neuerem Zeitstempel.
 /// - Das Anwenden ist idempotent: bekannte Einträge werden übersprungen.
 class SyncEngine {
   SyncEngine(this._db, this._recorder, {Map<String, EntitySchema>? schemas})
@@ -165,9 +166,15 @@ class SyncEngine {
 
     if (group == deletedFieldGroup) {
       if (incomingWins) {
+        // `deleted: false` hebt eine Löschung mit neuerem Zeitstempel auf
+        // (z. B. ein gelöschter Tag wird mit gleichem Namen neu angelegt).
+        final revive = values['deleted'] == false;
         await _db.customUpdate(
           'UPDATE ${schema.table} SET deleted_hlc = ? WHERE id = ?',
-          variables: [Variable<String>(entry.hlc), Variable<String>(entry.recordId)],
+          variables: [
+            Variable<String>(revive ? null : entry.hlc),
+            Variable<String>(entry.recordId),
+          ],
           updates: {schema.tableOf(_db)},
         );
         await _setClock(entry, group);

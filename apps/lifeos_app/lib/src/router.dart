@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:lifeos_design_system/lifeos_design_system.dart';
+import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_security/lifeos_security.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
@@ -16,7 +18,9 @@ abstract final class Routes {
   static const lock = '/gesperrt';
   static const recover = '/pin-zuruecksetzen';
   static const dashboard = '/';
+  static const calendar = '/kalender';
   static const tasks = '/aufgaben';
+  static const finance = '/finanzen';
   static const notes = '/notizen';
   static const settings = '/einstellungen';
   static const devices = '/einstellungen/geraete';
@@ -31,9 +35,19 @@ const _destinations = [
     selectedIcon: Icons.dashboard,
   ),
   ShellDestination(
+    label: 'Kalender',
+    icon: Icons.calendar_month_outlined,
+    selectedIcon: Icons.calendar_month,
+  ),
+  ShellDestination(
     label: 'Aufgaben',
     icon: Icons.check_box_outlined,
     selectedIcon: Icons.check_box,
+  ),
+  ShellDestination(
+    label: 'Finanzen',
+    icon: Icons.account_balance_wallet_outlined,
+    selectedIcon: Icons.account_balance_wallet,
   ),
   ShellDestination(
     label: 'Notizen',
@@ -89,8 +103,24 @@ GoRouter buildRouter(AppLockController lock) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: Routes.calendar,
+                builder: (context, state) => const CalendarPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: Routes.tasks,
                 builder: (context, state) => const TasksPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.finance,
+                builder: (context, state) => const FinancePage(),
               ),
             ],
           ),

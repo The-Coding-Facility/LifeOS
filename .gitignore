@@ -24,3 +24,6 @@ coverage/
 # Betriebssystem
 .DS_Store
 Thumbs.db
+
+# Arbeitsdateien von Claude
+.superpowers/

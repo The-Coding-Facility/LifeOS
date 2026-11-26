@@ -33,7 +33,17 @@ finally {
 foreach ($package in @('packages/core', 'packages/persistence', 'packages/sync')) {
     Invoke-InPackage $package 'dart'
 }
-foreach ($package in @('packages/security', 'packages/design_system', 'packages/features/tasks', 'packages/features/notes', 'apps/lifeos_app')) {
+$flutterPackages = @(
+    'packages/security',
+    'packages/design_system',
+    'packages/features/tags',
+    'packages/features/tasks',
+    'packages/features/notes',
+    'packages/features/calendar',
+    'packages/features/finance',
+    'apps/lifeos_app'
+)
+foreach ($package in $flutterPackages) {
     Invoke-InPackage $package 'flutter'
 }
 

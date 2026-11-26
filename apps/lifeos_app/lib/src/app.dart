@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lifeos_design_system/lifeos_design_system.dart';
 import 'package:lifeos_security/lifeos_security.dart';
@@ -69,6 +70,10 @@ class _LifeosAppState extends State<LifeosApp> {
       debugShowCheckedModeBanner: false,
       theme: buildLifeosTheme(Brightness.light),
       darkTheme: buildLifeosTheme(Brightness.dark),
+      // Deutsche Datumsauswahl, Montag als Wochenbeginn.
+      locale: const Locale('de', 'DE'),
+      supportedLocales: const [Locale('de', 'DE')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       routerConfig: _router,
       builder: (context, child) => Listener(
         behavior: HitTestBehavior.translucent,

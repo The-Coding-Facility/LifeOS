@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:lifeos_persistence/lifeos_persistence.dart';
 import 'package:lifeos_sync/lifeos_sync.dart';
 
@@ -23,3 +24,14 @@ final syncStateProvider = StreamProvider<SyncState>((ref) async* {
 final pairedDevicesProvider = StreamProvider<List<PairedDevice>>(
   (ref) => ref.watch(syncServiceProvider).watchDevices(),
 );
+
+/// Dieses Gerät und alle gekoppelten Geräte für die Erinnerungs-Auswahl im
+/// Kalender.
+Stream<List<DeviceChoice>> deviceChoicesStream(SyncService sync, String ownId) {
+  return sync.watchDevices().map(
+        (paired) => [
+          DeviceChoice(id: ownId, name: sync.identity.name, isThisDevice: true),
+          for (final device in paired) DeviceChoice(id: device.deviceId, name: device.name),
+        ],
+      );
+}

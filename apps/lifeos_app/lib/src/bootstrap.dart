@@ -1,12 +1,19 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:lifeos_calendar/lifeos_calendar.dart';
+import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_persistence/lifeos_persistence.dart';
 import 'package:lifeos_security/lifeos_security.dart';
 import 'package:lifeos_sync/lifeos_sync.dart';
+import 'package:lifeos_tags/lifeos_tags.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+
+import 'reminders/reminder_service.dart';
+import 'reminders/reminder_sinks.dart';
 
 /// Alle Dienste, die beim Start einmal erzeugt werden.
 class AppServices {
@@ -17,6 +24,10 @@ class AppServices {
     required this.sync,
     required this.tasks,
     required this.notes,
+    required this.tags,
+    required this.events,
+    required this.finance,
+    required this.reminders,
   });
 
   final LifeosDatabase database;
@@ -25,6 +36,13 @@ class AppServices {
   final SyncService sync;
   final TaskRepository tasks;
   final NoteRepository notes;
+  final TagRepository tags;
+  final EventRepository events;
+  final FinanceRepository finance;
+
+  /// `null`, wenn die Plattform keine Benachrichtigungen kann oder das
+  /// Einrichten fehlschlug. Die App läuft dann ohne Erinnerungen.
+  final ReminderService? reminders;
 
   /// Öffnet die verschlüsselte Datenbank und baut die Dienste auf.
   static Future<AppServices> open() async {
@@ -58,6 +76,21 @@ class AppServices {
     );
     await sync.start();
 
+    final events = EventRepository(database, recorder);
+    final finance = FinanceRepository(database, recorder);
+    await finance.generateDueRecurring();
+
+    ReminderService? reminders;
+    try {
+      final sink = await createReminderSink();
+      if (sink != null) {
+        reminders = ReminderService(events: events.watchAll(), deviceId: recorder.deviceId, sink: sink)
+          ..start();
+      }
+    } on Object catch (error, stackTrace) {
+      debugPrint('Erinnerungen sind nicht verfügbar: $error\n$stackTrace');
+    }
+
     return AppServices._(
       database: database,
       recorder: recorder,
@@ -65,6 +98,10 @@ class AppServices {
       sync: sync,
       tasks: TaskRepository(database, recorder),
       notes: NoteRepository(database, recorder),
+      tags: TagRepository(database, recorder),
+      events: events,
+      finance: finance,
+      reminders: reminders,
     );
   }
 

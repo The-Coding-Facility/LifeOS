@@ -1,6 +1,6 @@
 name: lifeos_app
 description: LifeOS – lokaler Lebensplaner für Windows, Android und iOS.
-version: 0.2.0+2
+version: 0.3.0+3
 publish_to: none
 resolution: workspace
 
@@ -11,14 +11,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_local_notifications: ^22.3.3
   flutter_riverpod: ^3.4.0
   go_router: ^18.1.0
   path: ^1.9.0
   path_provider: ^2.1.5
+  timezone: ^0.11.0
+  lifeos_calendar:
+    path: ../../packages/features/calendar
   lifeos_core:
     path: ../../packages/core
   lifeos_design_system:
     path: ../../packages/design_system
+  lifeos_finance:
+    path: ../../packages/features/finance
   lifeos_notes:
     path: ../../packages/features/notes
   lifeos_persistence:
@@ -27,6 +35,8 @@ dependencies:
     path: ../../packages/security
   lifeos_sync:
     path: ../../packages/sync
+  lifeos_tags:
+    path: ../../packages/features/tags
   lifeos_tasks:
     path: ../../packages/features/tasks
 

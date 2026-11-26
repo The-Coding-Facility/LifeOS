@@ -43,6 +43,74 @@ Update-TextFile (Join-Path $app 'android/app/src/main/AndroidManifest.xml') {
     $text.Replace('android:label="lifeos_app"', 'android:label="LifeOS"')
 }
 
+# Android: Rechte und Empfänger für Termin-Erinnerungen (flutter_local_notifications).
+Update-TextFile (Join-Path $app 'android/app/src/main/AndroidManifest.xml') {
+    param($text)
+    foreach ($permission in @(
+            '<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />',
+            '<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />',
+            '<uses-permission android:name="android.permission.USE_EXACT_ALARM" />'
+        )) {
+        $name = [regex]::Match($permission, 'android:name="([^"]+)"').Groups[1].Value
+        if ($text -notmatch [regex]::Escape($name)) {
+            $text = [regex]::Replace($text, '(<manifest[^>]*>)', '$1' + "`n    " + $permission)
+        }
+    }
+    if ($text -notmatch 'ScheduledNotificationReceiver') {
+        $receivers = @'
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+'@
+        $text = $text.Replace('</application>', $receivers + '    </application>')
+    }
+    $text
+}
+
+# Android: Core-Library-Desugaring (Pflicht für flutter_local_notifications)
+# und feste Release-Signatur, wenn die Umgebungsvariablen LIFEOS_KEYSTORE,
+# LIFEOS_KEYSTORE_PASSWORD, LIFEOS_KEY_ALIAS und LIFEOS_KEY_PASSWORD gesetzt
+# sind. Ohne sie bleibt es bei der Debug-Signatur wie bisher.
+Update-TextFile (Join-Path $app 'android/app/build.gradle.kts') {
+    param($text)
+    if ($text -match 'LifeOS-Anpassungen') { return $text }
+    $text + @'
+
+
+// LifeOS-Anpassungen (von tool/prepare.ps1 ergänzt)
+val lifeosKeystore: String? = System.getenv("LIFEOS_KEYSTORE")
+android {
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+    }
+    if (lifeosKeystore != null && file(lifeosKeystore).exists()) {
+        signingConfigs {
+            create("lifeos") {
+                storeFile = file(lifeosKeystore)
+                storePassword = System.getenv("LIFEOS_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("LIFEOS_KEY_ALIAS") ?: "lifeos"
+                keyPassword = System.getenv("LIFEOS_KEY_PASSWORD") ?: System.getenv("LIFEOS_KEYSTORE_PASSWORD")
+            }
+        }
+        buildTypes {
+            getByName("release") {
+                signingConfig = signingConfigs.getByName("lifeos")
+            }
+        }
+    }
+}
+dependencies {
+    add("coreLibraryDesugaring", "com.android.tools:desugar_jdk_libs:2.1.4")
+}
+'@
+}
+
 # Android: Mindestversion 8.0 (API 26), damit alle Plugins passen.
 Update-TextFile (Join-Path $app 'android/app/build.gradle.kts') {
     param($text)

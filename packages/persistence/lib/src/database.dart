@@ -19,14 +19,20 @@ part 'database.g.dart';
     SyncConflicts,
     Tasks,
     Notes,
+    Tags,
+    CalendarEvents,
+    FinanceEntries,
+    FinanceRecurring,
+    SavingGoals,
   ],
 )
 class LifeosDatabase extends _$LifeosDatabase {
   LifeosDatabase(super.executor);
 
   /// Version 1: Fundament. Version 2: gekoppelte Geräte und Konflikte.
+  /// Version 3: Tags, Kalender, Finanzen.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +41,13 @@ class LifeosDatabase extends _$LifeosDatabase {
           if (from < 2) {
             await migrator.createTable(pairedDevices);
             await migrator.createTable(syncConflicts);
+          }
+          if (from < 3) {
+            await migrator.createTable(tags);
+            await migrator.createTable(calendarEvents);
+            await migrator.createTable(financeEntries);
+            await migrator.createTable(financeRecurring);
+            await migrator.createTable(savingGoals);
           }
         },
         beforeOpen: (details) async {
