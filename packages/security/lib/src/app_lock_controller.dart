@@ -11,7 +11,7 @@ import 'recovery_code.dart';
 import 'security_store.dart';
 
 /// Zustand der App-Sperre.
-enum LockState { loading, needsSetup, locked, unlocked }
+enum AppLockState { loading, needsSetup, locked, unlocked }
 
 /// Ergebnis eines Entsperrversuchs.
 sealed class UnlockResult {
@@ -76,12 +76,12 @@ class AppLockController extends ChangeNotifier {
   /// Sperre nach dieser Zeit ohne Eingabe.
   final Duration timeout;
 
-  LockState _state = LockState.loading;
+  AppLockState _state = AppLockState.loading;
   String? _pendingRecoveryCode;
   DateTime _lastActivity = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
   Timer? _ticker;
 
-  LockState get state => _state;
+  AppLockState get state => _state;
 
   /// Neuer Wiederherstellungscode, der noch bestätigt werden muss.
   String? get pendingRecoveryCode => _pendingRecoveryCode;
@@ -89,7 +89,7 @@ class AppLockController extends ChangeNotifier {
   /// Liest den gespeicherten Zustand und startet die Inaktivitätsprüfung.
   Future<void> init() async {
     final pin = await _store.readPin();
-    _setState(pin == null ? LockState.needsSetup : LockState.locked);
+    _setState(pin == null ? AppLockState.needsSetup : AppLockState.locked);
     _ticker ??= Timer.periodic(const Duration(seconds: 15), (_) => checkInactivity());
   }
 
@@ -108,7 +108,7 @@ class AppLockController extends ChangeNotifier {
   void confirmRecoveryCodeSaved() {
     _pendingRecoveryCode = null;
     _lastActivity = _now();
-    _setState(LockState.unlocked);
+    _setState(AppLockState.unlocked);
   }
 
   Future<UnlockResult> unlock(String pin) async {
@@ -120,14 +120,14 @@ class AppLockController extends ChangeNotifier {
 
     final stored = await _store.readPin();
     if (stored == null) {
-      _setState(LockState.needsSetup);
+      _setState(AppLockState.needsSetup);
       return const UnlockWrongPin(0, null);
     }
 
     if (await _hasher.verify(pin, stored)) {
       await _clearFailures();
       _lastActivity = _now();
-      _setState(LockState.unlocked);
+      _setState(AppLockState.unlocked);
       return const UnlockSuccess();
     }
 
@@ -169,7 +169,7 @@ class AppLockController extends ChangeNotifier {
 
   /// Ersetzt den Wiederherstellungscode. Nur im entsperrten Zustand.
   Future<String> regenerateRecoveryCode() async {
-    if (_state != LockState.unlocked) {
+    if (_state != AppLockState.unlocked) {
       throw StateError('Nur im entsperrten Zustand möglich.');
     }
     return _issueRecoveryCode();
@@ -177,12 +177,12 @@ class AppLockController extends ChangeNotifier {
 
   /// Bei jeder Eingabe aufrufen (Tippen, Klicken, Tastatur).
   void registerActivity() {
-    if (_state == LockState.unlocked) _lastActivity = _now();
+    if (_state == AppLockState.unlocked) _lastActivity = _now();
   }
 
   /// Sperrt, wenn seit der letzten Eingabe [timeout] vergangen ist.
   void checkInactivity() {
-    if (_state == LockState.unlocked && _now().difference(_lastActivity) >= timeout) {
+    if (_state == AppLockState.unlocked && _now().difference(_lastActivity) >= timeout) {
       lockNow();
     }
   }
@@ -191,7 +191,7 @@ class AppLockController extends ChangeNotifier {
   void onForeground() => checkInactivity();
 
   void lockNow() {
-    if (_state == LockState.unlocked) _setState(LockState.locked);
+    if (_state == AppLockState.unlocked) _setState(AppLockState.locked);
   }
 
   @override
@@ -221,7 +221,7 @@ class AppLockController extends ChangeNotifier {
     }
   }
 
-  void _setState(LockState next) {
+  void _setState(AppLockState next) {
     if (_state == next) return;
     _state = next;
     notifyListeners();

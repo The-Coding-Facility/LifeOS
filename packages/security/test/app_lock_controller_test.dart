@@ -31,12 +31,12 @@ void main() {
   }
 
   test('Ersteinrichtung: erst nach bestätigtem Code entsperrt', () async {
-    expect(lock.state, LockState.needsSetup);
+    expect(lock.state, AppLockState.needsSetup);
     final code = await lock.setupPin('123456');
     expect(lock.pendingRecoveryCode, code);
-    expect(lock.state, LockState.needsSetup);
+    expect(lock.state, AppLockState.needsSetup);
     lock.confirmRecoveryCodeSaved();
-    expect(lock.state, LockState.unlocked);
+    expect(lock.state, AppLockState.unlocked);
     expect(lock.pendingRecoveryCode, isNull);
   });
 
@@ -49,25 +49,25 @@ void main() {
     await setUpUnlocked('123456');
     now = now.add(const Duration(minutes: 9));
     lock.checkInactivity();
-    expect(lock.state, LockState.unlocked);
+    expect(lock.state, AppLockState.unlocked);
 
     lock.registerActivity();
     now = now.add(const Duration(minutes: 9));
     lock.checkInactivity();
-    expect(lock.state, LockState.unlocked);
+    expect(lock.state, AppLockState.unlocked);
 
     now = now.add(const Duration(minutes: 1));
     lock.onForeground();
-    expect(lock.state, LockState.locked);
+    expect(lock.state, AppLockState.locked);
   });
 
   test('richtige PIN entsperrt, falsche nicht', () async {
     await setUpUnlocked('123456');
     lock.lockNow();
     expect(await lock.unlock('654321'), isA<UnlockWrongPin>());
-    expect(lock.state, LockState.locked);
+    expect(lock.state, AppLockState.locked);
     expect(await lock.unlock('123456'), isA<UnlockSuccess>());
-    expect(lock.state, LockState.unlocked);
+    expect(lock.state, AppLockState.unlocked);
   });
 
   test('ab dem 5. Fehlversuch gibt es eine Wartezeit', () async {
@@ -104,10 +104,10 @@ void main() {
     final secondCode = await lock.resetWithRecoveryCode(sloppyInput, '777777');
     expect(secondCode, isNotNull);
     expect(secondCode, isNot(firstCode));
-    expect(lock.state, LockState.locked);
+    expect(lock.state, AppLockState.locked);
 
     lock.confirmRecoveryCodeSaved();
-    expect(lock.state, LockState.unlocked);
+    expect(lock.state, AppLockState.unlocked);
 
     lock.lockNow();
     expect(await lock.unlock('123456'), isA<UnlockWrongPin>());
@@ -123,7 +123,7 @@ void main() {
       now: () => now,
     );
     await restarted.init();
-    expect(restarted.state, LockState.locked);
+    expect(restarted.state, AppLockState.locked);
     restarted.dispose();
   });
 }

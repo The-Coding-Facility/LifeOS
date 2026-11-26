@@ -187,12 +187,12 @@ class SyncEngine {
 
     if (incomingWins) {
       if (concurrent && differs) {
-        await _recordConflict(entry, group, current, localHlc!, entry.hlc);
+        await _recordConflict(entry, group, current, localHlc, entry.hlc);
       }
       if (differs) await _writeColumns(schema, entry.recordId, incoming);
       await _setClock(entry, group);
     } else if (concurrent && differs) {
-      await _recordConflict(entry, group, incoming, entry.hlc, localHlc!);
+      await _recordConflict(entry, group, incoming, entry.hlc, localHlc);
     }
   }
 

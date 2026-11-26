@@ -7,7 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class DatabaseKeyStore {
   DatabaseKeyStore({FlutterSecureStorage? storage})
       : _storage = storage ??
-            FlutterSecureStorage(
+            const FlutterSecureStorage(
               // Nach dem ersten Entsperren lesbar (für Hintergrund-Sync),
               // nie auf ein anderes Gerät übertragen.
               iOptions: IOSOptions(

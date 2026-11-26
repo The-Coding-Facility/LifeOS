@@ -133,13 +133,13 @@ GoRouter buildRouter(AppLockController lock) {
   );
 }
 
-String? _redirect(LockState state, String location) {
+String? _redirect(AppLockState state, String location) {
   const authRoutes = {Routes.setup, Routes.lock, Routes.recover};
   return switch (state) {
-    LockState.loading => null,
-    LockState.needsSetup => location == Routes.setup ? null : Routes.setup,
-    LockState.locked =>
+    AppLockState.loading => null,
+    AppLockState.needsSetup => location == Routes.setup ? null : Routes.setup,
+    AppLockState.locked =>
       location == Routes.lock || location == Routes.recover ? null : Routes.lock,
-    LockState.unlocked => authRoutes.contains(location) ? Routes.dashboard : null,
+    AppLockState.unlocked => authRoutes.contains(location) ? Routes.dashboard : null,
   };
 }

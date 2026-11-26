@@ -1,5 +1,3 @@
-import 'package:drift/drift.dart';
-
 import 'database.dart';
 
 /// Zugriff auf gerätebezogene Schlüssel-Wert-Paare in `local_meta`.
