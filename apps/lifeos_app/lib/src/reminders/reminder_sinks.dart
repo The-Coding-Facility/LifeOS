@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -72,21 +73,33 @@ class PluginReminderSink implements ReminderSink {
     }
   }
 
+  /// Genau zur Minute, solange Android das erlaubt. Fehlt die Erlaubnis
+  /// für genaue Wecker, kommt die Erinnerung ungefähr pünktlich statt gar nicht.
+  var _mode = AndroidScheduleMode.exactAllowWhileIdle;
+
   @override
   Future<void> replaceAll(List<PlannedReminder> reminders) async {
     await _plugin.cancelAll();
     for (final reminder in reminders) {
-      await _plugin.zonedSchedule(
+      try {
+        await _schedule(reminder);
+      } on PlatformException {
+        if (_mode == AndroidScheduleMode.inexactAllowWhileIdle) rethrow;
+        _mode = AndroidScheduleMode.inexactAllowWhileIdle;
+        await _schedule(reminder);
+      }
+    }
+  }
+
+  Future<void> _schedule(PlannedReminder reminder) => _plugin.zonedSchedule(
         id: reminder.notificationId,
         title: reminder.title,
         body: reminder.body,
         scheduledDate: tz.TZDateTime.from(reminder.fireAt, tz.UTC),
         notificationDetails: _details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        androidScheduleMode: _mode,
         payload: reminder.eventId,
       );
-    }
-  }
 
   @override
   Future<void> dispose() async {}
