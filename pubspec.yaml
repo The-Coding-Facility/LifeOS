@@ -1,0 +1,23 @@
+name: lifeos_workspace
+description: Monorepo-Wurzel von LifeOS (Pub Workspace).
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+workspace:
+  - apps/lifeos_app
+  - packages/core
+  - packages/persistence
+  - packages/security
+  - packages/sync
+  - packages/design_system
+  - packages/features/tasks
+  - packages/features/notes
+
+# SQLite3MultipleCiphers statt normalem SQLite bündeln (Datenbankverschlüsselung).
+# Siehe https://drift.simonbinder.eu/docs/platforms/encryption/
+hooks:
+  user_defines:
+    sqlite3:
+      source: sqlite3mc
