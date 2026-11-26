@@ -1,0 +1,19 @@
+name: lifeos_persistence
+description: Lokale Datenbank von LifeOS (Drift, SQLite3MultipleCiphers, Änderungsprotokoll). Reines Dart.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  drift: ^2.35.0
+  sqlite3: ^3.4.0
+  lifeos_core:
+    path: ../core
+
+dev_dependencies:
+  build_runner: ^2.4.0
+  drift_dev: ^2.35.0
+  test: ^1.25.0

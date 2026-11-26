@@ -1,0 +1,19 @@
+name: lifeos_sync
+description: Direkte Synchronisation von LifeOS-Geräten im lokalen Netz. Reines Dart.
+version: 0.2.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  cryptography: ^2.9.0
+  drift: ^2.35.0
+  lifeos_core:
+    path: ../core
+  lifeos_persistence:
+    path: ../persistence
+
+dev_dependencies:
+  test: ^1.25.0

@@ -1,0 +1,23 @@
+name: lifeos_security
+description: App-Sperre, PIN, Wiederherstellungscode und Datenbankschlüssel von LifeOS.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.38.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cryptography: ^2.9.0
+  flutter_riverpod: ^3.4.0
+  flutter_secure_storage: ^11.2.0
+  lifeos_persistence:
+    path: ../persistence
+
+dev_dependencies:
+  drift: ^2.35.0
+  flutter_test:
+    sdk: flutter
