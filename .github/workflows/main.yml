@@ -1,0 +1,116 @@
+# Baut bei jedem Push die Windows-Installationsdatei (.exe) und die Android-App (.apk).
+# Ergebnisse: Reiter „Actions“ → Lauf anklicken → unten „Artifacts“.
+# Bei einem Tag wie v0.2.0 entsteht zusätzlich ein Release mit beiden Dateien.
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows-Installer
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Plattformordner vorbereiten
+        shell: pwsh
+        run: ./tool/prepare.ps1
+
+      - name: Pakete holen
+        run: flutter pub get
+
+      - name: Datenbank-Code erzeugen
+        working-directory: packages/persistence
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyse und Tests
+        shell: pwsh
+        run: ./tool/test.ps1
+
+      - name: Inno Setup bereitstellen
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) {
+            choco install innosetup --no-progress -y
+          }
+
+      - name: Installer bauen
+        shell: pwsh
+        run: ./tool/build-windows.ps1
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LifeOS-Windows-Installer
+          path: dist/*.exe
+          if-no-files-found: error
+
+  android:
+    name: Android-App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Plattformordner vorbereiten
+        shell: pwsh
+        run: ./tool/prepare.ps1
+
+      - name: Pakete holen
+        run: flutter pub get
+
+      - name: Datenbank-Code erzeugen
+        working-directory: packages/persistence
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: APK bauen
+        working-directory: apps/lifeos_app
+        run: flutter build apk --release
+
+      - name: APK umbenennen
+        run: |
+          mkdir -p dist
+          version=$(grep -E '^version:' apps/lifeos_app/pubspec.yaml | sed -E 's/version:[[:space:]]*([0-9.]+).*/\1/')
+          cp apps/lifeos_app/build/app/outputs/flutter-apk/app-release.apk "dist/LifeOS-${version}.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LifeOS-Android-APK
+          path: dist/*.apk
+          if-no-files-found: error
+
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
