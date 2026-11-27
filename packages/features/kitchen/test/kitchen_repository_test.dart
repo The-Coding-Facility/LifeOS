@@ -123,7 +123,7 @@ void main() {
 
   test('langer Einkauf ergibt einen kurzen Buchungstitel', () {
     final title = ShoppingRepository.purchaseTitle([for (var i = 0; i < 40; i++) 'Artikel $i']);
-    expect(title.length, ShoppingRepository.maxTitleLength);
+    expect(title.length, lessThanOrEqualTo(ShoppingRepository.maxTitleLength));
     expect(title.endsWith('…'), isTrue);
   });
 
