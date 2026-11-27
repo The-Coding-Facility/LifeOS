@@ -1,7 +1,8 @@
 /// Bereich, zu dem ein Tag gehört. Kalender- und Finanz-Tags sind getrennt.
 enum TagScope {
   calendar('calendar'),
-  finance('finance');
+  finance('finance'),
+  recipes('recipes');
 
   const TagScope(this.key);
 

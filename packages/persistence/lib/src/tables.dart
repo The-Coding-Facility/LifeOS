@@ -311,3 +311,53 @@ class Projects extends Table with SyncColumns {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// Zutaten. Die ID entsteht aus dem normalisierten Namen, damit „Vollmilch“
+/// auf zwei Geräten derselbe Datensatz wird. Nährwerte je 100 g bzw. 100 ml,
+/// bei `piece` je Stück.
+@DataClassName('IngredientRow')
+class Ingredients extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+
+  /// `g`, `ml` oder `piece`.
+  TextColumn get unit => text().withDefault(const Constant('g'))();
+  RealColumn get kcal => real().withDefault(const Constant(0.0))();
+  RealColumn get protein => real().withDefault(const Constant(0.0))();
+  RealColumn get fat => real().withDefault(const Constant(0.0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Rezepte. `ingredients`: JSON-Liste `[{"id": Zutat-ID, "amount": Menge}]`.
+@DataClassName('RecipeRow')
+class Recipes extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+
+  /// Zubereitungszeit in Minuten.
+  IntColumn get minutes => integer().nullable()();
+  IntColumn get servings => integer().withDefault(const Constant(1))();
+  TextColumn get tagIds => text().withDefault(const Constant('[]'))();
+  TextColumn get ingredients => text().withDefault(const Constant('[]'))();
+  TextColumn get preparation => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Einträge der Einkaufsliste, aus Rezepten oder von Hand.
+@DataClassName('ShoppingItemRow')
+class ShoppingItems extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  RealColumn get amount => real().nullable()();
+  TextColumn get unit => text().nullable()();
+  TextColumn get ingredientId => text().nullable()();
+  TextColumn get recipeId => text().nullable()();
+  BoolColumn get checked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}

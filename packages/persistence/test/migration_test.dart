@@ -13,9 +13,10 @@ void main() {
     'saving_goals',
   ];
   const v4Tables = ['daily_reports', 'habits', 'habit_checks', 'projects'];
+  const v5Tables = ['ingredients', 'recipes', 'shopping_items'];
 
   Future<void> expectTablesUsable(LifeosDatabase db) async {
-    for (final table in [...v3Tables, ...v4Tables]) {
+    for (final table in [...v3Tables, ...v4Tables, ...v5Tables]) {
       final rows = await db.customSelect('SELECT COUNT(*) AS c FROM $table').get();
       expect(rows.single.read<int>('c'), 0, reason: table);
     }
@@ -42,32 +43,37 @@ void main() {
             updatedBy: 'a',
           ),
         );
-    for (final table in v4Tables) {
+    for (final table in v5Tables) {
       await db.customStatement('DROP TABLE $table');
     }
-    await db.customStatement('ALTER TABLE notes DROP COLUMN project_id');
-    await db.customStatement('ALTER TABLE notes DROP COLUMN pinned');
-    if (version <= 2) {
-      for (final table in v3Tables) {
+    if (version <= 3) {
+      for (final table in v4Tables) {
         await db.customStatement('DROP TABLE $table');
       }
-    } else {
-      await db.customStatement('ALTER TABLE calendar_events DROP COLUMN project_id');
+      await db.customStatement('ALTER TABLE notes DROP COLUMN project_id');
+      await db.customStatement('ALTER TABLE notes DROP COLUMN pinned');
+      if (version <= 2) {
+        for (final table in v3Tables) {
+          await db.customStatement('DROP TABLE $table');
+        }
+      } else {
+        await db.customStatement('ALTER TABLE calendar_events DROP COLUMN project_id');
+      }
     }
     await db.customStatement('PRAGMA user_version = $version');
     await db.close();
     return file;
   }
 
-  test('neue Datenbank hat Schema 4 mit allen Tabellen', () async {
+  test('neue Datenbank hat Schema 5 mit allen Tabellen', () async {
     final db = LifeosDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
     await expectTablesUsable(db);
   });
 
-  for (final version in [2, 3]) {
-    test('Datenbank mit Schema $version wird auf 4 gebracht', () async {
+  for (final version in [2, 3, 4]) {
+    test('Datenbank mit Schema $version wird auf 5 gebracht', () async {
       final file = await databaseAtVersion(version);
       final upgraded = LifeosDatabase(NativeDatabase(file));
       addTearDown(upgraded.close);

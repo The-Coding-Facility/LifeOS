@@ -148,6 +148,38 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'status': ['status'],
     },
   ),
+  'ingredients': EntitySchema(
+    table: 'ingredients',
+    tableOf: (db) => db.ingredients,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'unit': ['unit'],
+      'nutrition': ['kcal', 'protein', 'fat'],
+    },
+  ),
+  'recipes': EntitySchema(
+    table: 'recipes',
+    tableOf: (db) => db.recipes,
+    insertDefaults: const {'title': ''},
+    groups: const {
+      'title': ['title'],
+      'details': ['minutes', 'servings'],
+      'tags': ['tag_ids'],
+      'ingredients': ['ingredients'],
+      'preparation': ['preparation'],
+    },
+  ),
+  'shopping_items': EntitySchema(
+    table: 'shopping_items',
+    tableOf: (db) => db.shoppingItems,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'item': ['name', 'amount', 'unit', 'ingredient_id'],
+      'source': ['recipe_id'],
+      'checked': ['checked'],
+    },
+  ),
   'saving_goals': EntitySchema(
     table: 'saving_goals',
     tableOf: (db) => db.savingGoals,

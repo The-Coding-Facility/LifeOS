@@ -28,6 +28,9 @@ part 'database.g.dart';
     Habits,
     HabitChecks,
     Projects,
+    Ingredients,
+    Recipes,
+    ShoppingItems,
   ],
 )
 class LifeosDatabase extends _$LifeosDatabase {
@@ -37,8 +40,9 @@ class LifeosDatabase extends _$LifeosDatabase {
   /// Version 3: Tags, Kalender, Finanzen.
   /// Version 4: Daily Report, Habits, Projekte; Projekt-Spalten an Notizen
   /// und Terminen, Anheften von Notizen.
+  /// Version 5: Zutaten, Rezepte, Einkaufsliste.
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +71,11 @@ class LifeosDatabase extends _$LifeosDatabase {
             if (from == 3) {
               await migrator.addColumn(calendarEvents, calendarEvents.projectId);
             }
+          }
+          if (from < 5) {
+            await migrator.createTable(ingredients);
+            await migrator.createTable(recipes);
+            await migrator.createTable(shoppingItems);
           }
         },
         beforeOpen: (details) async {

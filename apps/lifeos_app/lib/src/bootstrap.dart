@@ -5,6 +5,7 @@ import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_habits/lifeos_habits.dart';
+import 'package:lifeos_kitchen/lifeos_kitchen.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_persistence/lifeos_persistence.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
@@ -33,6 +34,9 @@ class AppServices {
     required this.dailyReports,
     required this.habits,
     required this.projects,
+    required this.ingredients,
+    required this.recipes,
+    required this.shopping,
     required this.reminders,
   });
 
@@ -48,6 +52,9 @@ class AppServices {
   final DailyReportRepository dailyReports;
   final HabitRepository habits;
   final ProjectRepository projects;
+  final IngredientRepository ingredients;
+  final RecipeRepository recipes;
+  final ShoppingRepository shopping;
 
   /// `null`, wenn die Plattform keine Benachrichtigungen kann oder das
   /// Einrichten fehlschlug. Die App läuft dann ohne Erinnerungen.
@@ -113,6 +120,9 @@ class AppServices {
       dailyReports: DailyReportRepository(database, recorder),
       habits: HabitRepository(database, recorder),
       projects: ProjectRepository(database, recorder),
+      ingredients: IngredientRepository(database, recorder),
+      recipes: RecipeRepository(database, recorder),
+      shopping: ShoppingRepository(database, recorder, finance),
       reminders: reminders,
     );
   }

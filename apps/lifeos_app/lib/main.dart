@@ -4,6 +4,7 @@ import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_habits/lifeos_habits.dart';
+import 'package:lifeos_kitchen/lifeos_kitchen.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
@@ -42,6 +43,9 @@ Future<void> main() async {
         dailyReportRepositoryProvider.overrideWithValue(services.dailyReports),
         habitRepositoryProvider.overrideWithValue(services.habits),
         projectRepositoryProvider.overrideWithValue(services.projects),
+        ingredientRepositoryProvider.overrideWithValue(services.ingredients),
+        recipeRepositoryProvider.overrideWithValue(services.recipes),
+        shoppingRepositoryProvider.overrideWithValue(services.shopping),
         projectChoicesProvider.overrideWith(
           (ref) => services.projects.watchAll().map(
                 (projects) => [

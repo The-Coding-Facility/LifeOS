@@ -1,6 +1,6 @@
 name: lifeos_app
 description: LifeOS – lokaler Lebensplaner für Windows, Android und iOS.
-version: 0.4.0+4
+version: 0.5.0+5
 publish_to: none
 resolution: workspace
 
@@ -31,6 +31,8 @@ dependencies:
     path: ../../packages/features/finance
   lifeos_habits:
     path: ../../packages/features/habits
+  lifeos_kitchen:
+    path: ../../packages/features/kitchen
   lifeos_notes:
     path: ../../packages/features/notes
   lifeos_persistence:
