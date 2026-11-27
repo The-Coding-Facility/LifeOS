@@ -46,6 +46,8 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
     groups: const {
       'title': ['title'],
       'body': ['body'],
+      'project': ['project_id'],
+      'pinned': ['pinned'],
     },
   ),
   'tags': EntitySchema(
@@ -70,6 +72,7 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'recurrence': ['recurrence', 'exdates'],
       'tags': ['tag_ids'],
       'reminder': ['reminder_minutes', 'reminder_devices'],
+      'project': ['project_id'],
     },
   ),
   'finance_entries': EntitySchema(
@@ -98,6 +101,51 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'title': ['title'],
       'tags': ['tag_ids'],
       'schedule': ['freq', 'interval_count', 'start_date', 'end_date'],
+    },
+  ),
+  'daily_reports': EntitySchema(
+    table: 'daily_reports',
+    tableOf: (db) => db.dailyReports,
+    insertDefaults: const {'date': '1970-01-01'},
+    groups: const {
+      'date': ['date'],
+      'successes': ['successes'],
+      'learned': ['learned'],
+      'checks': ['calendar_done', 'kcal_goal_met', 'water_goal_met'],
+      'sleep': ['slept_at', 'woke_at'],
+      'activities': ['activities'],
+    },
+  ),
+  'habits': EntitySchema(
+    table: 'habits',
+    tableOf: (db) => db.habits,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'color': ['color_index'],
+      'schedule': ['weekdays'],
+      'archived': ['archived'],
+    },
+  ),
+  'habit_checks': EntitySchema(
+    table: 'habit_checks',
+    tableOf: (db) => db.habitChecks,
+    insertDefaults: const {'habit_id': '', 'date': '1970-01-01'},
+    groups: const {
+      'key': ['habit_id', 'date'],
+      'done': ['done'],
+    },
+  ),
+  'projects': EntitySchema(
+    table: 'projects',
+    tableOf: (db) => db.projects,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'description': ['description'],
+      'deadline': ['deadline'],
+      'color': ['color_index'],
+      'status': ['status'],
     },
   ),
   'saving_goals': EntitySchema(

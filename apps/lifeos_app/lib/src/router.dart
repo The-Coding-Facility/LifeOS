@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lifeos_calendar/lifeos_calendar.dart';
+import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_design_system/lifeos_design_system.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
+import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
+import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
@@ -21,11 +24,16 @@ abstract final class Routes {
   static const calendar = '/kalender';
   static const tasks = '/aufgaben';
   static const finance = '/finanzen';
+  static const dailyReport = '/daily-report';
+  static const habits = '/habits';
+  static const projects = '/projekte';
   static const notes = '/notizen';
   static const settings = '/einstellungen';
   static const devices = '/einstellungen/geraete';
 
   static String note(String id) => '$notes/$id';
+  static String project(String id) => '$projects/$id';
+  static String projectNote(String projectId, String noteId) => '$projects/$projectId/notiz/$noteId';
 }
 
 const _destinations = [
@@ -48,6 +56,21 @@ const _destinations = [
     label: 'Finanzen',
     icon: Icons.account_balance_wallet_outlined,
     selectedIcon: Icons.account_balance_wallet,
+  ),
+  ShellDestination(
+    label: 'Daily Report',
+    icon: Icons.edit_note,
+    selectedIcon: Icons.edit_note,
+  ),
+  ShellDestination(
+    label: 'Habits',
+    icon: Icons.repeat,
+    selectedIcon: Icons.repeat_on,
+  ),
+  ShellDestination(
+    label: 'Projekte',
+    icon: Icons.work_outline,
+    selectedIcon: Icons.work,
   ),
   ShellDestination(
     label: 'Notizen',
@@ -121,6 +144,54 @@ GoRouter buildRouter(AppLockController lock) {
               GoRoute(
                 path: Routes.finance,
                 builder: (context, state) => const FinancePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.dailyReport,
+                builder: (context, state) => const DailyReportPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.habits,
+                builder: (context, state) => const HabitsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.projects,
+                builder: (context, state) => ProjectsPage(
+                  onOpenProject: (id) => context.go(Routes.project(id)),
+                ),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final id = state.pathParameters['id']!;
+                      return ProjectDetailPage(
+                        projectId: id,
+                        onOpenNote: (noteId) => context.go(Routes.projectNote(id, noteId)),
+                        onClose: () => context.go(Routes.projects),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'notiz/:noteId',
+                        builder: (context, state) => NoteEditorPage(
+                          noteId: state.pathParameters['noteId']!,
+                          onClose: () => context.go(Routes.project(state.pathParameters['id']!)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

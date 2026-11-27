@@ -6,6 +6,8 @@ class NoteItem {
     required this.body,
     required this.createdAt,
     required this.updatedAt,
+    this.projectId,
+    this.pinned = false,
   });
 
   final String id;
@@ -15,6 +17,12 @@ class NoteItem {
   final String body;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// Projekt, in dessen Dashboard die Notiz erscheint.
+  final String? projectId;
+
+  /// An die Übersicht angeheftet.
+  final bool pinned;
 
   bool get isEmpty => title.trim().isEmpty && body.trim().isEmpty;
 

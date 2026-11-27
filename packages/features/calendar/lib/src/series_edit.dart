@@ -56,5 +56,6 @@ EventDraft applyToSeries({
     tagIds: edited.tagIds,
     reminderMinutes: edited.reminderMinutes,
     reminderDevices: edited.reminderDevices,
+    projectId: edited.projectId,
   );
 }

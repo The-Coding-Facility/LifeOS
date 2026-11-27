@@ -7,3 +7,4 @@ export 'src/providers.dart';
 export 'src/ui/note_editor_page.dart';
 export 'src/ui/notes_dashboard_tile.dart';
 export 'src/ui/notes_page.dart';
+export 'src/ui/pinned_notes_tile.dart';

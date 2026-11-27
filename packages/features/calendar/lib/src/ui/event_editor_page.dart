@@ -19,6 +19,7 @@ Future<void> openEventEditor(
   Occurrence? occurrence,
   DateTime? initialStart,
   bool initialAllDay = false,
+  String? initialProjectId,
 }) {
   return Navigator.of(context).push(
     MaterialPageRoute<void>(
@@ -27,6 +28,7 @@ Future<void> openEventEditor(
         occurrence: occurrence,
         initialStart: initialStart,
         initialAllDay: initialAllDay,
+        initialProjectId: initialProjectId,
       ),
     ),
   );
@@ -34,11 +36,18 @@ Future<void> openEventEditor(
 
 /// Formular für einen Termin.
 class EventEditorPage extends ConsumerStatefulWidget {
-  const EventEditorPage({super.key, this.occurrence, this.initialStart, this.initialAllDay = false});
+  const EventEditorPage({
+    super.key,
+    this.occurrence,
+    this.initialStart,
+    this.initialAllDay = false,
+    this.initialProjectId,
+  });
 
   final Occurrence? occurrence;
   final DateTime? initialStart;
   final bool initialAllDay;
+  final String? initialProjectId;
 
   @override
   ConsumerState<EventEditorPage> createState() => _EventEditorPageState();
@@ -58,6 +67,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
   List<String> _tagIds = [];
   int? _reminder;
   List<String> _devices = [allDevices];
+  String? _projectId;
   var _saving = false;
 
   CalendarEvent? get _event => widget.occurrence?.event;
@@ -85,7 +95,9 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
       _tagIds = [...draft.tagIds];
       _reminder = draft.reminderMinutes;
       _devices = [...draft.reminderDevices];
+      _projectId = draft.projectId;
     } else {
+      _projectId = widget.initialProjectId;
       final now = DateTime.now();
       final start = widget.initialStart ?? DateTime(now.year, now.month, now.day, now.hour + 1);
       _title = TextEditingController();
@@ -126,6 +138,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
         // Ohne gewähltes Gerät gibt es keine Erinnerung.
         reminderMinutes: _devices.isEmpty ? null : _reminder,
         reminderDevices: _devices.isEmpty ? const [allDevices] : _devices,
+        projectId: _projectId,
       );
 
   void _showMessage(String text) {
@@ -249,6 +262,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final devices = ref.watch(deviceChoicesProvider).value ?? const <DeviceChoice>[];
+    final projects = ref.watch(projectChoicesProvider).value ?? const <ProjectChoice>[];
     final allSelected = _devices.contains(allDevices);
 
     Widget dateTimeRow(String label, {required bool start}) {
@@ -329,6 +343,21 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
             selectedIds: _tagIds,
             onChanged: (ids) => setState(() => _tagIds = ids),
           ),
+          if (projects.isNotEmpty || _projectId != null) ...[
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _projectId,
+              decoration: const InputDecoration(labelText: 'Projekt', prefixIcon: Icon(Icons.work_outline)),
+              items: [
+                const DropdownMenuItem<String?>(value: null, child: Text('Kein Projekt')),
+                for (final project in projects)
+                  DropdownMenuItem<String?>(value: project.id, child: Text(project.name)),
+                if (_projectId != null && !projects.any((p) => p.id == _projectId))
+                  DropdownMenuItem<String?>(value: _projectId, child: const Text('Abgeschlossenes Projekt')),
+              ],
+              onChanged: (value) => setState(() => _projectId = value),
+            ),
+          ],
           const SizedBox(height: 16),
           DropdownButtonFormField<RecurrenceFreq?>(
             initialValue: _freq,

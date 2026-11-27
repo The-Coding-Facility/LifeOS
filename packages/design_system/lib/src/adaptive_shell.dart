@@ -52,28 +52,39 @@ class AdaptiveShell extends StatelessWidget {
             body: SafeArea(
               child: Row(
                 children: [
-                  NavigationRail(
-                    extended: extended,
-                    selectedIndex: selectedIndex,
-                    onDestinationSelected: onSelected,
-                    labelType: extended
-                        ? NavigationRailLabelType.none
-                        : NavigationRailLabelType.all,
-                    leading: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        'LifeOS',
-                        style: Theme.of(context).textTheme.titleMedium,
+                  // Scrollbar, damit viele Bereiche auch in niedrigen Fenstern passen.
+                  LayoutBuilder(
+                    builder: (context, rail) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: rail.maxHeight),
+                        child: IntrinsicHeight(
+                          child:
+                          NavigationRail(
+                            extended: extended,
+                            selectedIndex: selectedIndex,
+                            onDestinationSelected: onSelected,
+                            labelType: extended
+                                ? NavigationRailLabelType.none
+                                : NavigationRailLabelType.all,
+                            leading: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                'LifeOS',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            destinations: [
+                              for (final destination in destinations)
+                                NavigationRailDestination(
+                                  icon: Icon(destination.icon),
+                                  selectedIcon: Icon(destination.selectedIcon),
+                                  label: Text(destination.label),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    destinations: [
-                      for (final destination in destinations)
-                        NavigationRailDestination(
-                          icon: Icon(destination.icon),
-                          selectedIcon: Icon(destination.selectedIcon),
-                          label: Text(destination.label),
-                        ),
-                    ],
                   ),
                   const VerticalDivider(width: 1),
                   Expanded(child: body),

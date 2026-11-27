@@ -44,6 +44,7 @@ void main() {
         tagIds: const ['sport'],
         reminderMinutes: 30,
         reminderDevices: const ['handy'],
+        projectId: 'marathon',
       ),
     );
     await exchange();
@@ -61,6 +62,7 @@ void main() {
       expect(event.reminderMinutes, 30);
       expect(event.reminderDevices, ['handy']);
       expect(event.exdates, {'2026-06-04'});
+      expect(event.projectId, 'marathon');
     }
 
     await repoA.delete(id);

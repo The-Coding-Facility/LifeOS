@@ -10,3 +10,4 @@ export 'src/reminder_planner.dart';
 export 'src/series_edit.dart';
 export 'src/ui/calendar_dashboard_tile.dart';
 export 'src/ui/calendar_page.dart';
+export 'src/ui/event_editor_page.dart' show openEventEditor;

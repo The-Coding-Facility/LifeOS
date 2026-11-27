@@ -16,10 +16,11 @@ class TaskRepository {
   final LifeosDatabase _db;
   final ChangeRecorder _recorder;
 
-  /// Alle nicht gelöschten Aufgaben: offene zuerst, neueste oben.
+  /// Alle nicht gelöschten Aufgaben ohne Projekt: offene zuerst, neueste
+  /// oben. Unterpunkte von Projekten erscheinen nur im Projekt.
   Stream<List<TaskItem>> watchAll() {
     final query = _db.select(_db.tasks)
-      ..where((task) => task.deletedHlc.isNull())
+      ..where((task) => task.deletedHlc.isNull() & task.projectId.isNull())
       ..orderBy([
         (task) => OrderingTerm.asc(task.done),
         (task) => OrderingTerm.desc(task.createdAt),
@@ -29,8 +30,19 @@ class TaskRepository {
         );
   }
 
-  /// Legt eine Aufgabe an und gibt ihre ID zurück.
-  Future<String> create(String title, {String? details}) {
+  /// Unterpunkte eines Projekts in der Reihenfolge des Anlegens.
+  Stream<List<TaskItem>> watchByProject(String projectId) {
+    final query = _db.select(_db.tasks)
+      ..where((task) => task.deletedHlc.isNull() & task.projectId.equals(projectId))
+      ..orderBy([(task) => OrderingTerm.asc(task.createdAt)]);
+    return query.watch().map(
+          (rows) => rows.map(_toItem).toList(growable: false),
+        );
+  }
+
+  /// Legt eine Aufgabe an und gibt ihre ID zurück. Mit [projectId] wird sie
+  /// ein Unterpunkt dieses Projekts.
+  Future<String> create(String title, {String? details, String? projectId}) {
     final cleanTitle = _requireTitle(title);
     return _db.transaction(() async {
       final id = Ids.newId();
@@ -42,6 +54,7 @@ class TaskRepository {
           'title': {'title': cleanTitle},
           'details': {'details': details},
           'done': {'done': false, 'done_at': null},
+          if (projectId != null) 'project': {'project_id': projectId},
         },
       );
       await _db.into(_db.tasks).insert(
@@ -49,6 +62,7 @@ class TaskRepository {
               id: id,
               title: cleanTitle,
               details: Value(details),
+              projectId: Value(projectId),
               createdAt: _nowMillis(),
               createdBy: _recorder.deviceId,
               updatedHlc: hlc.pack(),
@@ -144,6 +158,7 @@ class TaskRepository {
             ? null
             : DateTime.fromMillisecondsSinceEpoch(row.doneAt!, isUtc: true),
         dueDate: row.dueDate,
+        projectId: row.projectId,
         createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt, isUtc: true),
       );
 }

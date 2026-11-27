@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:lifeos_calendar/lifeos_calendar.dart';
+import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
+import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_persistence/lifeos_persistence.dart';
+import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
 import 'package:lifeos_sync/lifeos_sync.dart';
 import 'package:lifeos_tags/lifeos_tags.dart';
@@ -27,6 +30,9 @@ class AppServices {
     required this.tags,
     required this.events,
     required this.finance,
+    required this.dailyReports,
+    required this.habits,
+    required this.projects,
     required this.reminders,
   });
 
@@ -39,6 +45,9 @@ class AppServices {
   final TagRepository tags;
   final EventRepository events;
   final FinanceRepository finance;
+  final DailyReportRepository dailyReports;
+  final HabitRepository habits;
+  final ProjectRepository projects;
 
   /// `null`, wenn die Plattform keine Benachrichtigungen kann oder das
   /// Einrichten fehlschlug. Die App läuft dann ohne Erinnerungen.
@@ -101,6 +110,9 @@ class AppServices {
       tags: TagRepository(database, recorder),
       events: events,
       finance: finance,
+      dailyReports: DailyReportRepository(database, recorder),
+      habits: HabitRepository(database, recorder),
+      projects: ProjectRepository(database, recorder),
       reminders: reminders,
     );
   }

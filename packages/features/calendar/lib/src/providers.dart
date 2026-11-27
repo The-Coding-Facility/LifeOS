@@ -27,3 +27,18 @@ class DeviceChoice {
 final deviceChoicesProvider = StreamProvider<List<DeviceChoice>>(
   (ref) => throw UnimplementedError('deviceChoicesProvider muss in main() überschrieben werden.'),
 );
+
+/// Ein Projekt, dem ein Termin zugeordnet werden kann.
+class ProjectChoice {
+  const ProjectChoice({required this.id, required this.name});
+
+  final String id;
+  final String name;
+}
+
+/// Aktive Projekte für die Auswahl im Terminformular. Die App liefert sie,
+/// damit der Kalender das Projektmodul nicht kennen muss. Ohne Überschreiben
+/// gibt es keine Auswahl.
+final projectChoicesProvider = StreamProvider<List<ProjectChoice>>(
+  (ref) => Stream.value(const <ProjectChoice>[]),
+);

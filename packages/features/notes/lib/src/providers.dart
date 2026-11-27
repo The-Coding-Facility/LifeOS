@@ -14,3 +14,13 @@ final noteRepositoryProvider = Provider<NoteRepository>(
 final notesProvider = StreamProvider<List<NoteItem>>(
   (ref) => ref.watch(noteRepositoryProvider).watchAll(),
 );
+
+/// An die Übersicht angeheftete Notizen.
+final pinnedNotesProvider = StreamProvider<List<NoteItem>>(
+  (ref) => ref.watch(noteRepositoryProvider).watchPinned(),
+);
+
+/// Notizen eines Projekts.
+final projectNotesProvider = StreamProvider.family<List<NoteItem>, String>(
+  (ref, projectId) => ref.watch(noteRepositoryProvider).watchByProject(projectId),
+);

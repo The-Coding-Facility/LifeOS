@@ -24,6 +24,10 @@ part 'database.g.dart';
     FinanceEntries,
     FinanceRecurring,
     SavingGoals,
+    DailyReports,
+    Habits,
+    HabitChecks,
+    Projects,
   ],
 )
 class LifeosDatabase extends _$LifeosDatabase {
@@ -31,8 +35,10 @@ class LifeosDatabase extends _$LifeosDatabase {
 
   /// Version 1: Fundament. Version 2: gekoppelte Geräte und Konflikte.
   /// Version 3: Tags, Kalender, Finanzen.
+  /// Version 4: Daily Report, Habits, Projekte; Projekt-Spalten an Notizen
+  /// und Terminen, Anheften von Notizen.
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -48,6 +54,19 @@ class LifeosDatabase extends _$LifeosDatabase {
             await migrator.createTable(financeEntries);
             await migrator.createTable(financeRecurring);
             await migrator.createTable(savingGoals);
+          }
+          if (from < 4) {
+            await migrator.createTable(dailyReports);
+            await migrator.createTable(habits);
+            await migrator.createTable(habitChecks);
+            await migrator.createTable(projects);
+            await migrator.addColumn(notes, notes.projectId);
+            await migrator.addColumn(notes, notes.pinned);
+            // Bei einem Sprung von 2 auf 4 hat createTable die Spalte oben
+            // schon angelegt.
+            if (from == 3) {
+              await migrator.addColumn(calendarEvents, calendarEvents.projectId);
+            }
           }
         },
         beforeOpen: (details) async {

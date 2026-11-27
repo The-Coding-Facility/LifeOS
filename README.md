@@ -4,7 +4,7 @@ Lokaler Lebensplaner für Windows, Android und iOS. Alle Daten bleiben auf deine
 
 Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md).
 
-## Stand: Version 0.3.0 – Kalender und Finanzen
+## Stand: Version 0.4.0 – Daily Report, Habits, Projekte
 
 **Drin**
 
@@ -13,6 +13,10 @@ Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md
 - Module **Aufgaben** und **Notizen**, Übersicht mit Sync-Symbol
 - **Kalender:** Monat, Woche, Tag; Termine per langem Drücken verschieben; Tags mit Farbe und Filter; Wiederholungen; Erinnerung je Termin mit Auswahl der Geräte
 - **Finanzen:** Einnahmen und Ausgaben, Kontostand mit Verlauf (30/365 Tage), Monatsbalken, Daueraufträge, Budgets je Tag mit Vergleich zum Vormonat, Sparziele, Jahresliste
+- **Daily Report:** ein Bericht pro Tag (Erfolge, Gelerntes, Haken für Kalender/kcal/Wasser, Schlafzeiten, besondere Aktivitäten), Verlauf und Serie
+- **Habits:** täglich oder an Wochentagen, Ansicht „Heute“ und Woche, Serie und Erfüllung der letzten 30 Tage
+- **Projekte:** Unterpunkte mit Fortschritt in Prozent, Deadline, eigene Notizen und Termine
+- **Notizen anheften:** an die Übersicht oder an ein Projekt
 - **Gerätekopplung per Code und Synchronisation im WLAN:** automatisch alle 30 Sekunden, 2 Sekunden nach jeder Änderung, beim Öffnen der App und auf Knopfdruck. Gleichzeitige Änderungen werden erkannt, die unterlegene Version wird aufbewahrt.
 - Windows-Installer (.exe) mit Firewall-Freigabe, Android-App (.apk)
 
@@ -21,7 +25,7 @@ Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md
 - Automatisches Finden der Geräte im WLAN (die Adresse wird einmal eingetippt)
 - QR-Code beim Koppeln, Gerätezertifikate, echter Widerruf (siehe [ADR-0004](docs/adr/0004-sync-testversion.md))
 - Übersicht zum Auflösen von Konflikten
-- Google Kalender, Daily Report, Habits, Projekte, Küche, Lernen, Sport, Wecker, frei gestaltbare Übersicht
+- Google Kalender, Küche und Einkauf, Lernen, Sport, Wecker, frei gestaltbare Übersicht
 - iOS-Build (braucht einen Mac oder Mac-Build-Dienst)
 
 ## Installationsdateien bekommen – ohne eigene Entwicklungsumgebung
@@ -40,8 +44,8 @@ Am einfachsten baut GitHub die Dateien für dich. Du brauchst nur ein kostenlose
    ```
 3. Im Repository auf **Actions** klicken. Der Lauf „Build“ startet automatisch und dauert etwa 15 Minuten.
 4. Lauf anklicken, unten unter **Artifacts** liegen:
-   - `LifeOS-Windows-Installer` → enthält `LifeOS-Setup-0.3.0.exe`
-   - `LifeOS-Android-APK` → enthält `LifeOS-0.3.0.apk`
+   - `LifeOS-Windows-Installer` → enthält `LifeOS-Setup-0.4.0.exe`
+   - `LifeOS-Android-APK` → enthält `LifeOS-0.4.0.apk`
 
 Schlägt ein Schritt fehl, kopiere die rote Fehlermeldung aus dem Lauf und schick sie an Claude.
 
@@ -49,12 +53,12 @@ Schlägt ein Schritt fehl, kopiere die rote Fehlermeldung aus dem Lauf und schic
 
 **Windows**
 
-1. `LifeOS-Setup-0.3.0.exe` starten. Windows SmartScreen warnt, weil die Datei nicht signiert ist: „Weitere Informationen“ → „Trotzdem ausführen“.
+1. `LifeOS-Setup-0.4.0.exe` starten. Windows SmartScreen warnt, weil die Datei nicht signiert ist: „Weitere Informationen“ → „Trotzdem ausführen“.
 2. Der Installer fragt nach Admin-Rechten. Die braucht er nur für die Firewall-Freigabe der Synchronisation (nur aus dem eigenen Netz).
 
 **Android**
 
-1. `LifeOS-0.3.0.apk` aufs Handy kopieren (z. B. per USB, Mail an dich selbst oder Cloud-Ordner) und antippen.
+1. `LifeOS-0.4.0.apk` aufs Handy kopieren (z. B. per USB, Mail an dich selbst oder Cloud-Ordner) und antippen.
 2. Android fragt, ob die Quelle Apps installieren darf: erlauben.
 3. Hinweis: Ohne hinterlegten Signaturschlüssel (siehe unten) ist jede neue Version mit einem anderen Testschlüssel signiert. Dann vor einem Update die alte Version deinstallieren. Deine Daten kommen danach per Sync vom PC zurück.
 
@@ -95,7 +99,7 @@ Nur nötig, wenn du selbst am Code arbeiten willst.
    ```powershell
    powershell -ExecutionPolicy Bypass -File tool\setup.ps1          # vorbereiten und testen
    cd apps\lifeos_app; flutter run -d windows                      # starten
-   powershell -ExecutionPolicy Bypass -File tool\build-windows.ps1  # dist\LifeOS-Setup-0.3.0.exe
+   powershell -ExecutionPolicy Bypass -File tool\build-windows.ps1  # dist\LifeOS-Setup-0.4.0.exe
    ```
 
 ## Projektstruktur

@@ -119,6 +119,8 @@ class Tasks extends Table with SyncColumns {
 
   /// Fälligkeitsdatum als ISO-Datum (`2026-11-26`), ohne Uhrzeit.
   TextColumn get dueDate => text().nullable()();
+
+  /// Gesetzt bei Unterpunkten eines Projekts.
   TextColumn get projectId => text().nullable()();
 
   @override
@@ -131,6 +133,12 @@ class Notes extends Table with SyncColumns {
   TextColumn get id => text()();
   TextColumn get title => text().withDefault(const Constant(''))();
   TextColumn get body => text().withDefault(const Constant(''))();
+
+  /// Projekt, in dessen Dashboard die Notiz erscheint (seit Schema 4).
+  TextColumn get projectId => text().nullable()();
+
+  /// An die Übersicht angeheftet (seit Schema 4).
+  BoolColumn get pinned => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -182,6 +190,9 @@ class CalendarEvents extends Table with SyncColumns {
   /// JSON-Liste von Geräte-IDs; `["*"]` = alle Geräte.
   TextColumn get reminderDevices => text().withDefault(const Constant('["*"]'))();
 
+  /// Projekt, zu dem der Termin gehört (seit Schema 4).
+  TextColumn get projectId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -231,6 +242,71 @@ class SavingGoals extends Table with SyncColumns {
   TextColumn get name => text()();
   IntColumn get targetCents => integer()();
   TextColumn get targetDate => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Daily Reports. Die ID entsteht aus dem Datum, damit es je Tag genau einen
+/// Bericht gibt, auch wenn zwei Geräte ihn offline anlegen.
+@DataClassName('DailyReportRow')
+class DailyReports extends Table with SyncColumns {
+  TextColumn get id => text()();
+
+  /// Tag des Berichts, `yyyy-mm-dd`.
+  TextColumn get date => text()();
+  TextColumn get successes => text().withDefault(const Constant(''))();
+  TextColumn get learned => text().withDefault(const Constant(''))();
+  BoolColumn get calendarDone => boolean().withDefault(const Constant(false))();
+  BoolColumn get kcalGoalMet => boolean().withDefault(const Constant(false))();
+  BoolColumn get waterGoalMet => boolean().withDefault(const Constant(false))();
+
+  /// Uhrzeiten als `HH:mm`.
+  TextColumn get sleptAt => text().nullable()();
+  TextColumn get wokeAt => text().nullable()();
+  TextColumn get activities => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Gewohnheiten. `weekdays`: JSON-Liste 1 (Mo) bis 7 (So), leer = täglich.
+@DataClassName('HabitRow')
+class Habits extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  IntColumn get colorIndex => integer().withDefault(const Constant(0))();
+  TextColumn get weekdays => text().withDefault(const Constant('[]'))();
+  BoolColumn get archived => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Haken eines Habits an einem Tag. ID aus Habit und Datum; abhaken und
+/// zurücknehmen ändern nur `done`.
+@DataClassName('HabitCheckRow')
+class HabitChecks extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get habitId => text()();
+  TextColumn get date => text()();
+  BoolColumn get done => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Projekte. `status`: `active` oder `done`.
+@DataClassName('ProjectRow')
+class Projects extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get description => text().withDefault(const Constant(''))();
+
+  /// Deadline `yyyy-mm-dd` oder leer.
+  TextColumn get deadline => text().nullable()();
+  IntColumn get colorIndex => integer().withDefault(const Constant(0))();
+  TextColumn get status => text().withDefault(const Constant('active'))();
 
   @override
   Set<Column> get primaryKey => {id};

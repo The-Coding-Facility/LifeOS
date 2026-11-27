@@ -8,6 +8,7 @@ class TaskItem {
     this.details,
     this.doneAt,
     this.dueDate,
+    this.projectId,
   });
 
   final String id;
@@ -19,4 +20,7 @@ class TaskItem {
   /// ISO-Datum ohne Uhrzeit, z. B. `2026-11-26`.
   final String? dueDate;
   final DateTime createdAt;
+
+  /// Gesetzt bei Unterpunkten eines Projekts.
+  final String? projectId;
 }

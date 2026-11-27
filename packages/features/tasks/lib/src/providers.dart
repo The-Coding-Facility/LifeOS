@@ -14,3 +14,8 @@ final taskRepositoryProvider = Provider<TaskRepository>(
 final tasksProvider = StreamProvider<List<TaskItem>>(
   (ref) => ref.watch(taskRepositoryProvider).watchAll(),
 );
+
+/// Unterpunkte eines Projekts, live aus der Datenbank.
+final projectTasksProvider = StreamProvider.family<List<TaskItem>, String>(
+  (ref, projectId) => ref.watch(taskRepositoryProvider).watchByProject(projectId),
+);

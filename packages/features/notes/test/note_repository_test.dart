@@ -70,4 +70,15 @@ void main() {
     expect(note.displayTitle, 'Erste Zeile');
     expect(note.isEmpty, isFalse);
   });
+
+  test('Anheften und Projektnotizen', () async {
+    final general = await repository.create(title: 'Allgemein');
+    final project = await repository.create(title: 'Projekt', projectId: 'p1');
+    await repository.setPinned(general, true);
+    expect((await repository.watchPinned().first).single.id, general);
+    expect((await repository.watchByProject('p1').first).single.id, project);
+    expect(await repository.watchAll().first, hasLength(2));
+    await repository.setPinned(general, false);
+    expect(await repository.watchPinned().first, isEmpty);
+  });
 }

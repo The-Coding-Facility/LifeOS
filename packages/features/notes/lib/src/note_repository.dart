@@ -33,7 +33,47 @@ class NoteRepository {
     return query.watchSingleOrNull().map((row) => row == null ? null : _toItem(row));
   }
 
-  Future<String> create({String title = '', String body = ''}) {
+  /// Angeheftete Notizen für die Übersicht, zuletzt geänderte zuerst.
+  Stream<List<NoteItem>> watchPinned() {
+    final query = _db.select(_db.notes)
+      ..where((note) => note.deletedHlc.isNull() & note.pinned.equals(true))
+      ..orderBy([(note) => OrderingTerm.desc(note.updatedHlc)]);
+    return query.watch().map((rows) => rows.map(_toItem).toList(growable: false));
+  }
+
+  /// Notizen eines Projekts, zuletzt geänderte zuerst.
+  Stream<List<NoteItem>> watchByProject(String projectId) {
+    final query = _db.select(_db.notes)
+      ..where((note) => note.deletedHlc.isNull() & note.projectId.equals(projectId))
+      ..orderBy([(note) => OrderingTerm.desc(note.updatedHlc)]);
+    return query.watch().map((rows) => rows.map(_toItem).toList(growable: false));
+  }
+
+  /// Heftet eine Notiz an die Übersicht an oder löst sie.
+  Future<void> setPinned(String id, bool pinned) {
+    return _db.transaction(() async {
+      final current = await _findActive(id);
+      if (current == null || current.pinned == pinned) return;
+      final hlc = await _recorder.record(
+        entity: entity,
+        recordId: id,
+        op: ChangeOp.upsert,
+        groups: {
+          'pinned': {'pinned': pinned},
+        },
+      );
+      await (_db.update(_db.notes)..where((note) => note.id.equals(id))).write(
+        NotesCompanion(
+          pinned: Value(pinned),
+          updatedHlc: Value(hlc.pack()),
+          updatedBy: Value(_recorder.deviceId),
+        ),
+      );
+    });
+  }
+
+  /// Legt eine Notiz an. Mit [projectId] erscheint sie im Projekt.
+  Future<String> create({String title = '', String body = '', String? projectId}) {
     return _db.transaction(() async {
       final id = Ids.newId();
       final hlc = await _recorder.record(
@@ -43,6 +83,7 @@ class NoteRepository {
         groups: {
           'title': {'title': title},
           'body': {'body': body},
+          if (projectId != null) 'project': {'project_id': projectId},
         },
       );
       await _db.into(_db.notes).insert(
@@ -50,6 +91,7 @@ class NoteRepository {
               id: id,
               title: Value(title),
               body: Value(body),
+              projectId: Value(projectId),
               createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
               createdBy: _recorder.deviceId,
               updatedHlc: hlc.pack(),
@@ -122,6 +164,8 @@ class NoteRepository {
         id: row.id,
         title: row.title,
         body: row.body,
+        projectId: row.projectId,
+        pinned: row.pinned,
         createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt, isUtc: true),
         updatedAt: DateTime.fromMillisecondsSinceEpoch(
           Hlc.parse(row.updatedHlc).millis,

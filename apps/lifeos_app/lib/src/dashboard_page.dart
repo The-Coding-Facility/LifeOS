@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lifeos_calendar/lifeos_calendar.dart';
+import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
+import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
+import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
 import 'router.dart';
@@ -32,8 +35,15 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final tiles = <Widget>[
       CalendarDashboardTile(onOpen: () => context.go(Routes.calendar)),
+      DailyReportTile(onOpen: () => context.go(Routes.dailyReport)),
+      HabitsTile(onOpen: () => context.go(Routes.habits)),
       TasksDashboardTile(onOpenAll: () => context.go(Routes.tasks)),
+      ProjectsTile(
+        onOpenAll: () => context.go(Routes.projects),
+        onOpenProject: (id) => context.go(Routes.project(id)),
+      ),
       FinanceDashboardTile(onOpen: () => context.go(Routes.finance)),
+      PinnedNotesTile(onOpenNote: (id) => context.go(Routes.note(id))),
       NotesDashboardTile(
         onOpenAll: () => context.go(Routes.notes),
         onOpenNote: (id) => context.go(Routes.note(id)),

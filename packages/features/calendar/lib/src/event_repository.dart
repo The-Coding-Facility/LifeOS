@@ -10,7 +10,8 @@ import 'model/recurrence.dart';
 /// Lesen und Schreiben von Terminen. Jede Änderung wird protokolliert.
 ///
 /// Feldgruppen: `title`, `details` (Beschreibung, Ort), `time` (ganztägig,
-/// Beginn, Ende), `recurrence` (Regel, Ausnahmen), `tags`, `reminder`.
+/// Beginn, Ende), `recurrence` (Regel, Ausnahmen), `tags`, `reminder`,
+/// `project`.
 class EventRepository {
   EventRepository(this._db, this._recorder);
 
@@ -121,6 +122,7 @@ class EventRepository {
     'recurrence': ['recurrence', 'exdates'],
     'tags': ['tag_ids'],
     'reminder': ['reminder_minutes', 'reminder_devices'],
+    'project': ['project_id'],
   };
 
   Future<String> _insert(EventDraft draft) async {
@@ -149,6 +151,7 @@ class EventRepository {
             tagIds: Value(columns['tag_ids']! as String),
             reminderMinutes: Value(columns['reminder_minutes'] as int?),
             reminderDevices: Value(columns['reminder_devices']! as String),
+            projectId: Value(columns['project_id'] as String?),
             createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
             createdBy: _recorder.deviceId,
             updatedHlc: hlc.pack(),
@@ -200,6 +203,8 @@ class EventRepository {
         reminderDevices: values.containsKey('reminder_devices')
             ? Value(values['reminder_devices']! as String)
             : const Value.absent(),
+        projectId:
+            values.containsKey('project_id') ? Value(values['project_id'] as String?) : const Value.absent(),
         updatedHlc: Value(hlc.pack()),
         updatedBy: Value(_recorder.deviceId),
       ),
@@ -232,6 +237,7 @@ class EventRepository {
       'reminder_devices': jsonEncode(
         draft.reminderDevices.isEmpty ? const [allDevices] : draft.reminderDevices,
       ),
+      'project_id': draft.projectId,
     };
   }
 
@@ -247,6 +253,7 @@ class EventRepository {
         'tag_ids': row.tagIds,
         'reminder_minutes': row.reminderMinutes,
         'reminder_devices': row.reminderDevices,
+        'project_id': row.projectId,
       };
 
   static String? _blankToNull(String? text) {
@@ -289,6 +296,7 @@ class EventRepository {
       tagIds: _decodeList(row.tagIds),
       reminderMinutes: row.reminderMinutes,
       reminderDevices: devices.isEmpty ? const [allDevices] : devices,
+      projectId: row.projectId,
     );
   }
 }

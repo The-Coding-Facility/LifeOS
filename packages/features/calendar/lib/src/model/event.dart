@@ -18,6 +18,7 @@ class CalendarEvent {
     this.tagIds = const [],
     this.reminderMinutes,
     this.reminderDevices = const [allDevices],
+    this.projectId,
   });
 
   final String id;
@@ -44,6 +45,9 @@ class CalendarEvent {
 
   /// Geräte-IDs, auf denen die Erinnerung kommt. `*` = alle.
   final List<String> reminderDevices;
+
+  /// Projekt, zu dem der Termin gehört.
+  final String? projectId;
 
   bool get isRecurring => recurrence != null;
 
@@ -72,6 +76,7 @@ class EventDraft {
     this.tagIds = const [],
     this.reminderMinutes,
     this.reminderDevices = const [allDevices],
+    this.projectId,
   });
 
   /// Formularwerte aus einem bestehenden Termin bzw. einem Vorkommen.
@@ -98,6 +103,7 @@ class EventDraft {
       tagIds: event.tagIds,
       reminderMinutes: event.reminderMinutes,
       reminderDevices: event.reminderDevices,
+      projectId: event.projectId,
     );
   }
 
@@ -111,6 +117,7 @@ class EventDraft {
   final List<String> tagIds;
   final int? reminderMinutes;
   final List<String> reminderDevices;
+  final String? projectId;
 
   /// Beginn in UTC, wie gespeichert.
   DateTime get storedStart =>
@@ -147,6 +154,7 @@ class EventDraft {
       tagIds: tagIds,
       reminderMinutes: reminderMinutes,
       reminderDevices: reminderDevices,
+      projectId: projectId,
     );
   }
 }

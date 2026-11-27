@@ -28,6 +28,7 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
   bool _loaded = false;
   bool _dirty = false;
   bool _deleted = false;
+  bool _pinned = false;
 
   @override
   void initState() {
@@ -45,7 +46,10 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
     }
     _title.text = note.title;
     _body.text = note.body;
-    setState(() => _loaded = true);
+    setState(() {
+      _pinned = note.pinned;
+      _loaded = true;
+    });
   }
 
   void _onChanged(String _) {
@@ -109,6 +113,17 @@ class _NoteEditorPageState extends ConsumerState<NoteEditorPage> {
       appBar: AppBar(
         title: const Text('Notiz'),
         actions: [
+          IconButton(
+            tooltip: _pinned ? 'Von der Übersicht lösen' : 'An die Übersicht anheften',
+            icon: Icon(_pinned ? Icons.push_pin : Icons.push_pin_outlined),
+            onPressed: !_loaded
+                ? null
+                : () async {
+                    final pinned = !_pinned;
+                    setState(() => _pinned = pinned);
+                    await _repository.setPinned(widget.noteId, pinned);
+                  },
+          ),
           IconButton(
             tooltip: 'Löschen',
             icon: const Icon(Icons.delete_outline),

@@ -81,4 +81,13 @@ void main() {
     final titles = (await repository.watchAll().first).map((task) => task.title);
     expect(titles, ['Zweite', 'Erste']);
   });
+
+  test('Projekt-Unterpunkte erscheinen nur im Projekt', () async {
+    await repository.create('Allgemein');
+    final sub = await repository.create('Unterpunkt', projectId: 'projekt-1');
+    expect((await repository.watchAll().first).map((task) => task.title), ['Allgemein']);
+    final inProject = await repository.watchByProject('projekt-1').first;
+    expect(inProject.single.id, sub);
+    expect(inProject.single.projectId, 'projekt-1');
+  });
 }
