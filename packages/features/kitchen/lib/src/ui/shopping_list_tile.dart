@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lifeos_design_system/lifeos_design_system.dart';
 
+import '../model.dart';
 import '../nutrition.dart';
 import '../providers.dart';
 
@@ -14,7 +15,7 @@ class ShoppingListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final open = [for (final item in ref.watch(shoppingItemsProvider).value ?? const []) if (!item.checked) item];
+    final open = [for (final item in ref.watch(shoppingItemsProvider).value ?? const <ShoppingItem>[]) if (!item.checked) item];
     return SectionCard(
       title: 'Einkaufsliste',
       icon: Icons.shopping_cart_outlined,
