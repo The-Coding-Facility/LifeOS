@@ -31,16 +31,12 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
   int? _sleptAt;
   int? _wokeAt;
   var _exists = false;
-  var _loading = true;
+
+  /// Tag, dessen Werte gerade im Formular stehen (`yyyy-mm-dd`).
+  String? _filledFor;
+  var _fillScheduled = false;
 
   DateTime get _today => dateOnly((widget.clock ?? DateTime.now)());
-
-  @override
-  void initState() {
-    super.initState();
-    // Erst nach initState laden: setState ist dort noch nicht erlaubt.
-    Future.microtask(() => _load(_date));
-  }
 
   @override
   void dispose() {
@@ -51,25 +47,33 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
     super.dispose();
   }
 
-  Future<void> _load(DateTime date) async {
-    setState(() {
-      _date = date;
-      _loading = true;
-    });
-    final reports = await ref.read(dailyReportsProvider.future);
-    if (!mounted || _date != date) return;
-    final report = reports.where((r) => isoDate(r.date) == isoDate(date)).firstOrNull;
-    setState(() {
-      _exists = report != null;
-      _successes.text = report?.successes ?? '';
-      _learned.text = report?.learned ?? '';
-      _activities.text = report?.activities ?? '';
-      _calendarDone = report?.calendarDone ?? false;
-      _kcal = report?.kcalGoalMet ?? false;
-      _water = report?.waterGoalMet ?? false;
-      _sleptAt = report?.sleptAt;
-      _wokeAt = report?.wokeAt;
-      _loading = false;
+  bool get _loading => _filledFor != isoDate(_date);
+
+  void _showDay(DateTime date) => setState(() => _date = dateOnly(date));
+
+  /// Übernimmt den gespeicherten Bericht des gewählten Tages ins Formular.
+  /// Die Berichte werden beobachtet (nicht nur einmal gelesen), sonst
+  /// pausiert Riverpod die Datenquelle und das Laden endet nie.
+  void _scheduleFill(List<DailyReport> reports) {
+    if (_fillScheduled || !_loading) return;
+    _fillScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fillScheduled = false;
+      if (!mounted) return;
+      final key = isoDate(_date);
+      final report = reports.where((r) => isoDate(r.date) == key).firstOrNull;
+      setState(() {
+        _exists = report != null;
+        _successes.text = report?.successes ?? '';
+        _learned.text = report?.learned ?? '';
+        _activities.text = report?.activities ?? '';
+        _calendarDone = report?.calendarDone ?? false;
+        _kcal = report?.kcalGoalMet ?? false;
+        _water = report?.waterGoalMet ?? false;
+        _sleptAt = report?.sleptAt;
+        _wokeAt = report?.wokeAt;
+        _filledFor = key;
+      });
     });
   }
 
@@ -116,6 +120,8 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
 
   @override
   Widget build(BuildContext context) {
+    final reports = ref.watch(dailyReportsProvider).value;
+    if (reports != null) _scheduleFill(reports);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Daily Report'),
@@ -132,7 +138,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
             today: _today,
             onOpen: (date) {
               _tabs.animateTo(0);
-              _load(date);
+              _showDay(date);
             },
           ),
         ],
@@ -155,7 +161,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
             IconButton(
               tooltip: 'Vortag',
               icon: const Icon(Icons.chevron_left),
-              onPressed: () => _load(DateTime(_date.year, _date.month, _date.day - 1)),
+              onPressed: () => _showDay(DateTime(_date.year, _date.month, _date.day - 1)),
             ),
             Expanded(
               child: Text(
@@ -167,7 +173,7 @@ class _DailyReportPageState extends ConsumerState<DailyReportPage> with SingleTi
             IconButton(
               tooltip: 'Nächster Tag',
               icon: const Icon(Icons.chevron_right),
-              onPressed: isToday ? null : () => _load(DateTime(_date.year, _date.month, _date.day + 1)),
+              onPressed: isToday ? null : () => _showDay(DateTime(_date.year, _date.month, _date.day + 1)),
             ),
           ],
         ),
