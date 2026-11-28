@@ -8,7 +8,7 @@ import 'package:lifeos_sport/lifeos_sport.dart';
 void main() {
   final today = DateTime(2026, 11, 28);
 
-  List<Override> overrides() => [
+  Widget scope(Widget child) => ProviderScope(overrides: [
         nutritionLogsProvider.overrideWith(
           (ref) => Stream.value([
             NutritionLog(id: '1', date: today, kcal: 1850),
@@ -29,16 +29,13 @@ void main() {
         exercisesProvider.overrideWith((ref) => Stream.value(const [Exercise(id: 'e', name: 'Kniebeuge')])),
         bodyEntriesProvider.overrideWith((ref) => Stream.value(const <BodyEntry>[])),
         dailyReportsProvider.overrideWith((ref) => Stream.value(const <DailyReport>[])),
-      ];
+      ], child: child);
 
   testWidgets('Kachel zeigt Aufnahme gegen Ziel und letztes Training', (tester) async {
-    await tester.pumpWidget(ProviderScope(
-      overrides: overrides(),
-      child: MaterialApp(
-        theme: buildLifeosTheme(Brightness.light),
-        home: Scaffold(body: SportTile(onOpen: () {}, clock: () => today)),
-      ),
-    ));
+    await tester.pumpWidget(scope(MaterialApp(
+      theme: buildLifeosTheme(Brightness.light),
+      home: Scaffold(body: SportTile(onOpen: () {}, clock: () => today)),
+    )));
     await tester.pumpAndSettle();
     expect(find.text('1850 / 2000'), findsOneWidget);
     expect(find.text('250 / 2500 ml'), findsOneWidget);
@@ -46,9 +43,8 @@ void main() {
   });
 
   testWidgets('Sportseite öffnet mit Übersicht und Plänen', (tester) async {
-    await tester.pumpWidget(ProviderScope(
-      overrides: overrides(),
-      child: MaterialApp(theme: buildLifeosTheme(Brightness.light), home: SportPage(clock: () => today)),
+    await tester.pumpWidget(scope(
+      MaterialApp(theme: buildLifeosTheme(Brightness.light), home: SportPage(clock: () => today)),
     ));
     await tester.pumpAndSettle();
     expect(find.text('Körperdaten'), findsOneWidget);
