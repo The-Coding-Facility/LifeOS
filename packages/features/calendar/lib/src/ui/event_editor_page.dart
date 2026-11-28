@@ -68,6 +68,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
   int? _reminder;
   List<String> _devices = [allDevices];
   String? _projectId;
+  String? _trainingPlanId;
   var _saving = false;
 
   CalendarEvent? get _event => widget.occurrence?.event;
@@ -96,6 +97,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
       _reminder = draft.reminderMinutes;
       _devices = [...draft.reminderDevices];
       _projectId = draft.projectId;
+      _trainingPlanId = draft.trainingPlanId;
     } else {
       _projectId = widget.initialProjectId;
       final now = DateTime.now();
@@ -139,6 +141,7 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
         reminderMinutes: _devices.isEmpty ? null : _reminder,
         reminderDevices: _devices.isEmpty ? const [allDevices] : _devices,
         projectId: _projectId,
+        trainingPlanId: _trainingPlanId,
       );
 
   void _showMessage(String text) {
@@ -263,6 +266,9 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
     final theme = Theme.of(context);
     final devices = ref.watch(deviceChoicesProvider).value ?? const <DeviceChoice>[];
     final projects = ref.watch(projectChoicesProvider).value ?? const <ProjectChoice>[];
+    final plans = ref.watch(trainingPlanChoicesProvider).value ?? const <TrainingPlanChoice>[];
+    final startTraining = ref.watch(startTrainingProvider);
+    final savedPlanId = widget.occurrence?.event.trainingPlanId;
     final allSelected = _devices.contains(allDevices);
 
     Widget dateTimeRow(String label, {required bool start}) {
@@ -291,6 +297,17 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
       appBar: AppBar(
         title: Text(_isNew ? 'Neuer Termin' : 'Termin bearbeiten'),
         actions: [
+          if (savedPlanId != null && startTraining != null)
+            TextButton.icon(
+              onPressed: () {
+                final navigator = Navigator.of(context);
+                final root = navigator.context;
+                navigator.pop();
+                startTraining(root, savedPlanId);
+              },
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Training starten'),
+            ),
           if (!_isNew)
             IconButton(tooltip: 'Löschen', icon: const Icon(Icons.delete_outline), onPressed: _delete),
           TextButton(onPressed: _saving ? null : _save, child: const Text('Speichern')),
@@ -356,6 +373,23 @@ class _EventEditorPageState extends ConsumerState<EventEditorPage> {
                   DropdownMenuItem<String?>(value: _projectId, child: const Text('Abgeschlossenes Projekt')),
               ],
               onChanged: (value) => setState(() => _projectId = value),
+            ),
+          ],
+          if (plans.isNotEmpty || _trainingPlanId != null) ...[
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String?>(
+              initialValue: _trainingPlanId,
+              decoration: const InputDecoration(
+                labelText: 'Trainingsplan',
+                prefixIcon: Icon(Icons.fitness_center),
+              ),
+              items: [
+                const DropdownMenuItem<String?>(value: null, child: Text('Kein Training')),
+                for (final plan in plans) DropdownMenuItem<String?>(value: plan.id, child: Text(plan.name)),
+                if (_trainingPlanId != null && !plans.any((p) => p.id == _trainingPlanId))
+                  DropdownMenuItem<String?>(value: _trainingPlanId, child: const Text('Gelöschter Plan')),
+              ],
+              onChanged: (value) => setState(() => _trainingPlanId = value),
             ),
           ],
           const SizedBox(height: 16),

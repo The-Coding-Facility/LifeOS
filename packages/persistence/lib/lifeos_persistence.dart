@@ -5,3 +5,4 @@ export 'src/change_recorder.dart';
 export 'src/database.dart';
 export 'src/local_meta_store.dart';
 export 'src/open_database.dart';
+export 'src/record_writer.dart';

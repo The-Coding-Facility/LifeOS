@@ -6,9 +6,11 @@ import 'package:lifeos_design_system/lifeos_design_system.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_kitchen/lifeos_kitchen.dart';
+import 'package:lifeos_learning/lifeos_learning.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
+import 'package:lifeos_sport/lifeos_sport.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
 import 'dashboard_page.dart';
@@ -28,6 +30,8 @@ abstract final class Routes {
   static const dailyReport = '/daily-report';
   static const habits = '/habits';
   static const projects = '/projekte';
+  static const learning = '/lernen';
+  static const sport = '/sport';
   static const kitchen = '/kueche';
   static const shoppingList = '/kueche/einkauf';
   static const notes = '/notizen';
@@ -74,6 +78,16 @@ const _destinations = [
     label: 'Projekte',
     icon: Icons.work_outline,
     selectedIcon: Icons.work,
+  ),
+  ShellDestination(
+    label: 'Lernen',
+    icon: Icons.school_outlined,
+    selectedIcon: Icons.school,
+  ),
+  ShellDestination(
+    label: 'Sport',
+    icon: Icons.fitness_center_outlined,
+    selectedIcon: Icons.fitness_center,
   ),
   ShellDestination(
     label: 'Küche',
@@ -200,6 +214,22 @@ GoRouter buildRouter(AppLockController lock) {
                     ],
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.learning,
+                builder: (context, state) => const LearningPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: Routes.sport,
+                builder: (context, state) => const SportPage(),
               ),
             ],
           ),

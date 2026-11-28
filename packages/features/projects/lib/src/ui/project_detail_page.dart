@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lifeos_calendar/lifeos_calendar.dart';
 import 'package:lifeos_core/lifeos_core.dart';
 import 'package:lifeos_design_system/lifeos_design_system.dart';
+import 'package:lifeos_learning/lifeos_learning.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
@@ -92,6 +93,11 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
       today,
       DateTime(today.year, today.month, today.day + 90),
     );
+    final areas = [
+      for (final area in ref.watch(learningAreasProvider).value ?? const <LearningArea>[])
+        if (area.projectId == project.id) area,
+    ];
+    final sessions = ref.watch(studySessionsProvider).value ?? const <StudySession>[];
     final done = subtasks.where((task) => task.done).length;
     final percent = (progressOf(subtasks) * 100).round();
     final deadline = project.deadline;
@@ -242,6 +248,28 @@ class _ProjectDetailPageState extends ConsumerState<ProjectDetailPage> {
                 '${occurrence.allDay ? 'ganztägig' : formatTime(occurrence.start)}',
               ),
               onTap: () => openEventEditor(context, occurrence: occurrence),
+            ),
+
+          if (areas.isNotEmpty) section('Lernbereiche', Icons.school_outlined),
+          for (final area in areas)
+            Builder(
+              builder: (context) {
+                final summary = areaSummary(sessions, area.id);
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(radius: 8, backgroundColor: tagColor(area.colorIndex)),
+                  title: Text(area.name),
+                  subtitle: Text(
+                    summary.count == 0
+                        ? 'Noch nicht gelernt'
+                        : '${summary.count} Einheiten'
+                            '${summary.rate == null ? '' : ' · ${(summary.rate! * 100).round()} % richtig'}',
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => LearningAreaPage(areaId: area.id)),
+                  ),
+                );
+              },
             ),
         ],
       ),

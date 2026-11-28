@@ -6,10 +6,12 @@ import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_kitchen/lifeos_kitchen.dart';
+import 'package:lifeos_learning/lifeos_learning.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_persistence/lifeos_persistence.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
+import 'package:lifeos_sport/lifeos_sport.dart';
 import 'package:lifeos_sync/lifeos_sync.dart';
 import 'package:lifeos_tags/lifeos_tags.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
@@ -37,6 +39,8 @@ class AppServices {
     required this.ingredients,
     required this.recipes,
     required this.shopping,
+    required this.learning,
+    required this.sport,
     required this.reminders,
   });
 
@@ -55,6 +59,8 @@ class AppServices {
   final IngredientRepository ingredients;
   final RecipeRepository recipes;
   final ShoppingRepository shopping;
+  final LearningRepository learning;
+  final SportRepository sport;
 
   /// `null`, wenn die Plattform keine Benachrichtigungen kann oder das
   /// Einrichten fehlschlug. Die App läuft dann ohne Erinnerungen.
@@ -123,6 +129,8 @@ class AppServices {
       ingredients: IngredientRepository(database, recorder),
       recipes: RecipeRepository(database, recorder),
       shopping: ShoppingRepository(database, recorder, finance),
+      learning: LearningRepository(database, recorder),
+      sport: SportRepository(database, recorder),
       reminders: reminders,
     );
   }

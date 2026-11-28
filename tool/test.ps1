@@ -45,6 +45,8 @@ $flutterPackages = @(
     'packages/features/habits',
     'packages/features/projects',
     'packages/features/kitchen',
+    'packages/features/learning',
+    'packages/features/sport',
     'apps/lifeos_app'
 )
 foreach ($package in $flutterPackages) {

@@ -31,6 +31,17 @@ part 'database.g.dart';
     Ingredients,
     Recipes,
     ShoppingItems,
+    LearningAreas,
+    GlossaryEntries,
+    Flashcards,
+    LearningResources,
+    StudySessions,
+    BodyMeasurements,
+    NutritionLogs,
+    SportGoals,
+    Exercises,
+    TrainingPlans,
+    WorkoutSessions,
   ],
 )
 class LifeosDatabase extends _$LifeosDatabase {
@@ -41,8 +52,10 @@ class LifeosDatabase extends _$LifeosDatabase {
   /// Version 4: Daily Report, Habits, Projekte; Projekt-Spalten an Notizen
   /// und Terminen, Anheften von Notizen.
   /// Version 5: Zutaten, Rezepte, Einkaufsliste.
+  /// Version 6: Lernen und Sport; Lernbereich an Notizen, Trainingsplan an
+  /// Terminen.
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -76,6 +89,28 @@ class LifeosDatabase extends _$LifeosDatabase {
             await migrator.createTable(ingredients);
             await migrator.createTable(recipes);
             await migrator.createTable(shoppingItems);
+          }
+          if (from < 6) {
+            for (final table in <TableInfo<Table, dynamic>>[
+              learningAreas,
+              glossaryEntries,
+              flashcards,
+              learningResources,
+              studySessions,
+              bodyMeasurements,
+              nutritionLogs,
+              sportGoals,
+              exercises,
+              trainingPlans,
+              workoutSessions,
+            ]) {
+              await migrator.createTable(table);
+            }
+            await migrator.addColumn(notes, notes.learningAreaId);
+            // Vor Schema 3 legt createTable die Termine schon mit der Spalte an.
+            if (from >= 3) {
+              await migrator.addColumn(calendarEvents, calendarEvents.trainingPlanId);
+            }
           }
         },
         beforeOpen: (details) async {

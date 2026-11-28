@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'event_repository.dart';
@@ -42,3 +43,23 @@ class ProjectChoice {
 final projectChoicesProvider = StreamProvider<List<ProjectChoice>>(
   (ref) => Stream.value(const <ProjectChoice>[]),
 );
+
+/// Ein Trainingsplan, der einem Termin zugeordnet werden kann.
+class TrainingPlanChoice {
+  const TrainingPlanChoice({required this.id, required this.name});
+
+  final String id;
+  final String name;
+}
+
+/// Trainingspläne für die Auswahl im Terminformular. Die App liefert sie aus
+/// dem Sportmodul; ohne Überschreiben gibt es keine Auswahl.
+final trainingPlanChoicesProvider = StreamProvider<List<TrainingPlanChoice>>(
+  (ref) => Stream.value(const <TrainingPlanChoice>[]),
+);
+
+/// Startet das Abspielen eines Trainingsplans.
+typedef StartTraining = void Function(BuildContext context, String planId);
+
+/// Von der App gesetzt; `null` = kein Start aus dem Termin möglich.
+final startTrainingProvider = Provider<StartTraining?>((ref) => null);

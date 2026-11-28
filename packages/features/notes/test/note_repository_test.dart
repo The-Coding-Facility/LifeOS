@@ -81,4 +81,12 @@ void main() {
     await repository.setPinned(general, false);
     expect(await repository.watchPinned().first, isEmpty);
   });
+
+  test('Notizen eines Lernbereichs', () async {
+    final id = await repository.create(title: 'Vokabeln', learningAreaId: 'spanisch');
+    await repository.create(title: 'Anderes');
+    final notes = await repository.watchByLearningArea('spanisch').first;
+    expect(notes.single.id, id);
+    expect(notes.single.learningAreaId, 'spanisch');
+  });
 }

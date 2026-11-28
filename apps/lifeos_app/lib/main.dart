@@ -5,9 +5,11 @@ import 'package:lifeos_daily_report/lifeos_daily_report.dart';
 import 'package:lifeos_finance/lifeos_finance.dart';
 import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_kitchen/lifeos_kitchen.dart';
+import 'package:lifeos_learning/lifeos_learning.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
 import 'package:lifeos_security/lifeos_security.dart';
+import 'package:lifeos_sport/lifeos_sport.dart';
 import 'package:lifeos_tags/lifeos_tags.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
@@ -46,6 +48,22 @@ Future<void> main() async {
         ingredientRepositoryProvider.overrideWithValue(services.ingredients),
         recipeRepositoryProvider.overrideWithValue(services.recipes),
         shoppingRepositoryProvider.overrideWithValue(services.shopping),
+        learningRepositoryProvider.overrideWithValue(services.learning),
+        sportRepositoryProvider.overrideWithValue(services.sport),
+        learningProjectChoicesProvider.overrideWith(
+          (ref) => services.projects.watchAll().map(
+                (projects) => [
+                  for (final project in projects)
+                    if (project.isActive) LearningProjectChoice(id: project.id, name: project.name),
+                ],
+              ),
+        ),
+        trainingPlanChoicesProvider.overrideWith(
+          (ref) => services.sport.watchPlans().map(
+                (plans) => [for (final plan in plans) TrainingPlanChoice(id: plan.id, name: plan.name)],
+              ),
+        ),
+        startTrainingProvider.overrideWithValue(openPlayback),
         projectChoicesProvider.overrideWith(
           (ref) => services.projects.watchAll().map(
                 (projects) => [

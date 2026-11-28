@@ -4,7 +4,7 @@ Lokaler Lebensplaner für Windows, Android und iOS. Alle Daten bleiben auf deine
 
 Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md).
 
-## Stand: Version 0.5.0 – Küche und Einkaufsliste
+## Stand: Version 0.6.0 – Lernen und Sport
 
 **Drin**
 
@@ -18,6 +18,8 @@ Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md
 - **Projekte:** Unterpunkte mit Fortschritt in Prozent, Deadline, eigene Notizen und Termine
 - **Notizen anheften:** an die Übersicht oder an ein Projekt
 - **Küche:** Zutaten mit Nährwerten (einmal erfassen, danach Vorschläge), Rezepte mit berechneten kcal/Protein/Fett pro Portion, Tags und Suche; Einkaufsliste mit Einkaufswagen-Knopf, „Gekauft“ bucht die Ausgabe in den Finanzen
+- **Lernen:** Lernbereiche mit Glossar, Karteikarten (Text oder Auswahl mit mehreren richtigen Antworten), eigenen Notizen und Ressourcen; Lernmodus (falsch beantwortete Karten zuerst), Prüfungen mit Zeitlimit und Bestehensgrenze, Statistik mit Trend und den am häufigsten falsch beantworteten Fragen. Bereiche lassen sich mit Projekten verknüpfen.
+- **Sport:** Körperdaten pro Tag (Gewicht, Umfänge, Ruhepuls, Schlaf; Schlaf sonst aus dem Daily Report), Tracker für kcal/Protein/Fett/Wasser mit Tageszielen und Rezeptportionen aus der Küche, Übungskatalog, Trainingspläne mit Countdown, Ruhezeit und Ton beim Wechsel, Werte je Übung, Verläufe. Ein Kalendertermin kann einen Trainingsplan enthalten und ihn starten.
 - **Gerätekopplung per Code und Synchronisation im WLAN:** automatisch alle 30 Sekunden, 2 Sekunden nach jeder Änderung, beim Öffnen der App und auf Knopfdruck. Gleichzeitige Änderungen werden erkannt, die unterlegene Version wird aufbewahrt.
 - Windows-Installer (.exe) mit Firewall-Freigabe, Android-App (.apk)
 
@@ -26,7 +28,7 @@ Die vollständige Architektur steht in [docs/architektur.md](docs/architektur.md
 - Automatisches Finden der Geräte im WLAN (die Adresse wird einmal eingetippt)
 - QR-Code beim Koppeln, Gerätezertifikate, echter Widerruf (siehe [ADR-0004](docs/adr/0004-sync-testversion.md))
 - Übersicht zum Auflösen von Konflikten
-- Google Kalender, Lernen, Sport, Wecker, frei gestaltbare Übersicht, Bilder zu Rezepten, Wochen-Essensplaner
+- Google Kalender, Wecker, frei gestaltbare Übersicht, Bilder zu Rezepten, Wochen-Essensplaner
 - iOS-Build (braucht einen Mac oder Mac-Build-Dienst)
 
 ## Installationsdateien bekommen – ohne eigene Entwicklungsumgebung
@@ -45,8 +47,8 @@ Am einfachsten baut GitHub die Dateien für dich. Du brauchst nur ein kostenlose
    ```
 3. Im Repository auf **Actions** klicken. Der Lauf „Build“ startet automatisch und dauert etwa 15 Minuten.
 4. Lauf anklicken, unten unter **Artifacts** liegen:
-   - `LifeOS-Windows-Installer` → enthält `LifeOS-Setup-0.5.0.exe`
-   - `LifeOS-Android-APK` → enthält `LifeOS-0.5.0.apk`
+   - `LifeOS-Windows-Installer` → enthält `LifeOS-Setup-0.6.0.exe`
+   - `LifeOS-Android-APK` → enthält `LifeOS-0.6.0.apk`
 
 Schlägt ein Schritt fehl, kopiere die rote Fehlermeldung aus dem Lauf und schick sie an Claude.
 
@@ -54,12 +56,12 @@ Schlägt ein Schritt fehl, kopiere die rote Fehlermeldung aus dem Lauf und schic
 
 **Windows**
 
-1. `LifeOS-Setup-0.5.0.exe` starten. Windows SmartScreen warnt, weil die Datei nicht signiert ist: „Weitere Informationen“ → „Trotzdem ausführen“.
+1. `LifeOS-Setup-0.6.0.exe` starten. Windows SmartScreen warnt, weil die Datei nicht signiert ist: „Weitere Informationen“ → „Trotzdem ausführen“.
 2. Der Installer fragt nach Admin-Rechten. Die braucht er nur für die Firewall-Freigabe der Synchronisation (nur aus dem eigenen Netz).
 
 **Android**
 
-1. `LifeOS-0.5.0.apk` aufs Handy kopieren (z. B. per USB, Mail an dich selbst oder Cloud-Ordner) und antippen.
+1. `LifeOS-0.6.0.apk` aufs Handy kopieren (z. B. per USB, Mail an dich selbst oder Cloud-Ordner) und antippen.
 2. Android fragt, ob die Quelle Apps installieren darf: erlauben.
 3. Hinweis: Ohne hinterlegten Signaturschlüssel (siehe unten) ist jede neue Version mit einem anderen Testschlüssel signiert. Dann vor einem Update die alte Version deinstallieren. Deine Daten kommen danach per Sync vom PC zurück.
 
@@ -100,7 +102,7 @@ Nur nötig, wenn du selbst am Code arbeiten willst.
    ```powershell
    powershell -ExecutionPolicy Bypass -File tool\setup.ps1          # vorbereiten und testen
    cd apps\lifeos_app; flutter run -d windows                      # starten
-   powershell -ExecutionPolicy Bypass -File tool\build-windows.ps1  # dist\LifeOS-Setup-0.5.0.exe
+   powershell -ExecutionPolicy Bypass -File tool\build-windows.ps1  # dist\LifeOS-Setup-0.6.0.exe
    ```
 
 ## Projektstruktur

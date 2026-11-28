@@ -7,6 +7,7 @@ import 'package:lifeos_habits/lifeos_habits.dart';
 import 'package:lifeos_kitchen/lifeos_kitchen.dart';
 import 'package:lifeos_notes/lifeos_notes.dart';
 import 'package:lifeos_projects/lifeos_projects.dart';
+import 'package:lifeos_sport/lifeos_sport.dart';
 import 'package:lifeos_tasks/lifeos_tasks.dart';
 
 import 'router.dart';
@@ -38,6 +39,7 @@ class DashboardPage extends StatelessWidget {
       CalendarDashboardTile(onOpen: () => context.go(Routes.calendar)),
       DailyReportTile(onOpen: () => context.go(Routes.dailyReport)),
       HabitsTile(onOpen: () => context.go(Routes.habits)),
+      SportTile(onOpen: () => context.go(Routes.sport)),
       TasksDashboardTile(onOpenAll: () => context.go(Routes.tasks)),
       ProjectsTile(
         onOpenAll: () => context.go(Routes.projects),

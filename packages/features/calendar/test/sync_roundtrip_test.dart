@@ -45,6 +45,7 @@ void main() {
         reminderMinutes: 30,
         reminderDevices: const ['handy'],
         projectId: 'marathon',
+        trainingPlanId: 'intervalle',
       ),
     );
     await exchange();
@@ -63,6 +64,7 @@ void main() {
       expect(event.reminderDevices, ['handy']);
       expect(event.exdates, {'2026-06-04'});
       expect(event.projectId, 'marathon');
+      expect(event.trainingPlanId, 'intervalle');
     }
 
     await repoA.delete(id);

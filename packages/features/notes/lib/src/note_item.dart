@@ -8,6 +8,7 @@ class NoteItem {
     required this.updatedAt,
     this.projectId,
     this.pinned = false,
+    this.learningAreaId,
   });
 
   final String id;
@@ -23,6 +24,9 @@ class NoteItem {
 
   /// An die Übersicht angeheftet.
   final bool pinned;
+
+  /// Lernbereich, zu dem die Notiz gehört.
+  final String? learningAreaId;
 
   bool get isEmpty => title.trim().isEmpty && body.trim().isEmpty;
 

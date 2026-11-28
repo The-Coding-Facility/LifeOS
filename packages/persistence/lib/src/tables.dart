@@ -140,6 +140,9 @@ class Notes extends Table with SyncColumns {
   /// An die Übersicht angeheftet (seit Schema 4).
   BoolColumn get pinned => boolean().withDefault(const Constant(false))();
 
+  /// Lernbereich, zu dem die Notiz gehört (seit Schema 6).
+  TextColumn get learningAreaId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -192,6 +195,9 @@ class CalendarEvents extends Table with SyncColumns {
 
   /// Projekt, zu dem der Termin gehört (seit Schema 4).
   TextColumn get projectId => text().nullable()();
+
+  /// Trainingsplan, der mit dem Termin gestartet werden kann (seit Schema 6).
+  TextColumn get trainingPlanId => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -357,6 +363,177 @@ class ShoppingItems extends Table with SyncColumns {
   TextColumn get ingredientId => text().nullable()();
   TextColumn get recipeId => text().nullable()();
   BoolColumn get checked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// ---------------------------------------------------------------- Lernen
+
+/// Lernbereiche, optional mit einem Projekt verknüpft.
+@DataClassName('LearningAreaRow')
+class LearningAreas extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get description => text().withDefault(const Constant(''))();
+  IntColumn get colorIndex => integer().withDefault(const Constant(0))();
+  TextColumn get projectId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Glossar eines Lernbereichs.
+@DataClassName('GlossaryEntryRow')
+class GlossaryEntries extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get areaId => text()();
+  TextColumn get term => text()();
+  TextColumn get explanation => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Karteikarten. `kind`: `text` oder `choice`; `choices`: JSON
+/// `[{"text": …, "correct": true}]`.
+@DataClassName('FlashcardRow')
+class Flashcards extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get areaId => text()();
+  TextColumn get question => text()();
+  TextColumn get answer => text().withDefault(const Constant(''))();
+  TextColumn get kind => text().withDefault(const Constant('text'))();
+  TextColumn get choices => text().withDefault(const Constant('[]'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Ressourcen eines Lernbereichs (Bücher, Links, Kurse …).
+@DataClassName('LearningResourceRow')
+class LearningResources extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get areaId => text()();
+  TextColumn get title => text()();
+  TextColumn get link => text().withDefault(const Constant(''))();
+  TextColumn get note => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Lerneinheiten und Prüfungen. Werden nur angelegt, nie geändert.
+/// `answers`: JSON `[{"kind": "card"|"glossary", "id": …, "correct": true}]`.
+@DataClassName('StudySessionRow')
+class StudySessions extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get areaId => text()();
+
+  /// `learn` oder `exam`.
+  TextColumn get mode => text()();
+  IntColumn get startedAt => integer()();
+  IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
+  IntColumn get total => integer().withDefault(const Constant(0))();
+  IntColumn get correct => integer().withDefault(const Constant(0))();
+
+  /// Bestehensgrenze in Prozent, nur bei Prüfungen.
+  IntColumn get passPercent => integer().nullable()();
+  TextColumn get answers => text().withDefault(const Constant('[]'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// ----------------------------------------------------------------- Sport
+
+/// Körperdaten eines Tages. ID aus dem Datum; jede Messung ist eine eigene
+/// Feldgruppe, damit Gewicht am PC und Puls am Handy ohne Konflikt
+/// zusammenkommen.
+@DataClassName('BodyMeasurementRow')
+class BodyMeasurements extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get date => text()();
+  RealColumn get weight => real().nullable()();
+  RealColumn get height => real().nullable()();
+  RealColumn get bodyFat => real().nullable()();
+  RealColumn get belly => real().nullable()();
+  RealColumn get chest => real().nullable()();
+  RealColumn get upperArm => real().nullable()();
+  RealColumn get forearm => real().nullable()();
+  RealColumn get hip => real().nullable()();
+  RealColumn get waist => real().nullable()();
+  RealColumn get thigh => real().nullable()();
+  RealColumn get restingPulse => real().nullable()();
+  RealColumn get sleepHours => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Einträge des Ernährungs- und Wassertrackers.
+@DataClassName('NutritionLogRow')
+class NutritionLogs extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get date => text()();
+  TextColumn get label => text().withDefault(const Constant(''))();
+  RealColumn get kcal => real().withDefault(const Constant(0.0))();
+  RealColumn get protein => real().withDefault(const Constant(0.0))();
+  RealColumn get fat => real().withDefault(const Constant(0.0))();
+  RealColumn get waterMl => real().withDefault(const Constant(0.0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Tagesziele für den Tracker. Genau eine Zeile mit der ID `goals`.
+@DataClassName('SportGoalsRow')
+class SportGoals extends Table with SyncColumns {
+  TextColumn get id => text()();
+  RealColumn get kcal => real().nullable()();
+  RealColumn get protein => real().nullable()();
+  RealColumn get fat => real().nullable()();
+  RealColumn get waterMl => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Übungskatalog. `category`: `strength` oder `endurance`.
+@DataClassName('ExerciseRow')
+class Exercises extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get category => text().withDefault(const Constant('strength'))();
+  TextColumn get description => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Trainingspläne. `kind`: `strength`, `endurance`, `mixed`; `steps`: JSON
+/// `[{"exercise_id": …, "seconds": 60, "rest_seconds": 30}]`.
+@DataClassName('TrainingPlanRow')
+class TrainingPlans extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  TextColumn get kind => text().withDefault(const Constant('strength'))();
+  TextColumn get steps => text().withDefault(const Constant('[]'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Durchgeführte Trainings. Werden nur angelegt (und gelöscht).
+@DataClassName('WorkoutSessionRow')
+class WorkoutSessions extends Table with SyncColumns {
+  TextColumn get id => text()();
+  TextColumn get planId => text().nullable()();
+  IntColumn get startedAt => integer()();
+  IntColumn get durationSeconds => integer().withDefault(const Constant(0))();
+
+  /// JSON `[{"exercise_id": …, "weight": 60, "reps": 10, …}]`.
+  TextColumn get results => text().withDefault(const Constant('[]'))();
 
   @override
   Set<Column> get primaryKey => {id};

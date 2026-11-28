@@ -49,8 +49,7 @@ class _IngredientResult {
     required this.kcal,
     required this.protein,
     required this.fat,
-    this.delete = false,
-  });
+  }) : delete = false;
 
   const _IngredientResult.delete()
       : name = '',

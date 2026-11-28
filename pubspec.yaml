@@ -21,6 +21,8 @@ workspace:
   - packages/features/habits
   - packages/features/projects
   - packages/features/kitchen
+  - packages/features/learning
+  - packages/features/sport
 
 # SQLite3MultipleCiphers statt normalem SQLite bündeln (Datenbankverschlüsselung).
 # Siehe https://drift.simonbinder.eu/docs/platforms/encryption/

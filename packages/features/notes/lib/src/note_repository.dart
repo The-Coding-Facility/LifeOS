@@ -49,6 +49,14 @@ class NoteRepository {
     return query.watch().map((rows) => rows.map(_toItem).toList(growable: false));
   }
 
+  /// Notizen eines Lernbereichs, zuletzt geänderte zuerst.
+  Stream<List<NoteItem>> watchByLearningArea(String areaId) {
+    final query = _db.select(_db.notes)
+      ..where((note) => note.deletedHlc.isNull() & note.learningAreaId.equals(areaId))
+      ..orderBy([(note) => OrderingTerm.desc(note.updatedHlc)]);
+    return query.watch().map((rows) => rows.map(_toItem).toList(growable: false));
+  }
+
   /// Heftet eine Notiz an die Übersicht an oder löst sie.
   Future<void> setPinned(String id, bool pinned) {
     return _db.transaction(() async {
@@ -73,7 +81,7 @@ class NoteRepository {
   }
 
   /// Legt eine Notiz an. Mit [projectId] erscheint sie im Projekt.
-  Future<String> create({String title = '', String body = '', String? projectId}) {
+  Future<String> create({String title = '', String body = '', String? projectId, String? learningAreaId}) {
     return _db.transaction(() async {
       final id = Ids.newId();
       final hlc = await _recorder.record(
@@ -84,6 +92,7 @@ class NoteRepository {
           'title': {'title': title},
           'body': {'body': body},
           if (projectId != null) 'project': {'project_id': projectId},
+          if (learningAreaId != null) 'learning_area': {'learning_area_id': learningAreaId},
         },
       );
       await _db.into(_db.notes).insert(
@@ -92,6 +101,7 @@ class NoteRepository {
               title: Value(title),
               body: Value(body),
               projectId: Value(projectId),
+              learningAreaId: Value(learningAreaId),
               createdAt: DateTime.now().toUtc().millisecondsSinceEpoch,
               createdBy: _recorder.deviceId,
               updatedHlc: hlc.pack(),
@@ -166,6 +176,7 @@ class NoteRepository {
         body: row.body,
         projectId: row.projectId,
         pinned: row.pinned,
+        learningAreaId: row.learningAreaId,
         createdAt: DateTime.fromMillisecondsSinceEpoch(row.createdAt, isUtc: true),
         updatedAt: DateTime.fromMillisecondsSinceEpoch(
           Hlc.parse(row.updatedHlc).millis,

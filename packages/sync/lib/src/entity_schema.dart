@@ -48,6 +48,7 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'body': ['body'],
       'project': ['project_id'],
       'pinned': ['pinned'],
+      'learning_area': ['learning_area_id'],
     },
   ),
   'tags': EntitySchema(
@@ -73,6 +74,7 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'tags': ['tag_ids'],
       'reminder': ['reminder_minutes', 'reminder_devices'],
       'project': ['project_id'],
+      'training_plan': ['training_plan_id'],
     },
   ),
   'finance_entries': EntitySchema(
@@ -178,6 +180,131 @@ final Map<String, EntitySchema> defaultEntitySchemas = {
       'item': ['name', 'amount', 'unit', 'ingredient_id'],
       'source': ['recipe_id'],
       'checked': ['checked'],
+    },
+  ),
+  'learning_areas': EntitySchema(
+    table: 'learning_areas',
+    tableOf: (db) => db.learningAreas,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'description': ['description'],
+      'color': ['color_index'],
+      'project': ['project_id'],
+    },
+  ),
+  'glossary_entries': EntitySchema(
+    table: 'glossary_entries',
+    tableOf: (db) => db.glossaryEntries,
+    insertDefaults: const {'area_id': '', 'term': ''},
+    groups: const {
+      'area': ['area_id'],
+      'term': ['term'],
+      'explanation': ['explanation'],
+    },
+  ),
+  'flashcards': EntitySchema(
+    table: 'flashcards',
+    tableOf: (db) => db.flashcards,
+    insertDefaults: const {'area_id': '', 'question': ''},
+    groups: const {
+      'area': ['area_id'],
+      'question': ['question'],
+      'answer': ['answer', 'kind', 'choices'],
+    },
+  ),
+  'learning_resources': EntitySchema(
+    table: 'learning_resources',
+    tableOf: (db) => db.learningResources,
+    insertDefaults: const {'area_id': '', 'title': ''},
+    groups: const {
+      'area': ['area_id'],
+      'title': ['title'],
+      'link': ['link'],
+      'note': ['note'],
+    },
+  ),
+  'study_sessions': EntitySchema(
+    table: 'study_sessions',
+    tableOf: (db) => db.studySessions,
+    insertDefaults: const {'area_id': '', 'mode': 'learn', 'started_at': 0},
+    groups: const {
+      'data': [
+        'area_id',
+        'mode',
+        'started_at',
+        'duration_seconds',
+        'total',
+        'correct',
+        'pass_percent',
+        'answers',
+      ],
+    },
+  ),
+  'body_measurements': EntitySchema(
+    table: 'body_measurements',
+    tableOf: (db) => db.bodyMeasurements,
+    insertDefaults: const {'date': '1970-01-01'},
+    groups: const {
+      'date': ['date'],
+      'weight': ['weight'],
+      'height': ['height'],
+      'body_fat': ['body_fat'],
+      'belly': ['belly'],
+      'chest': ['chest'],
+      'upper_arm': ['upper_arm'],
+      'forearm': ['forearm'],
+      'hip': ['hip'],
+      'waist': ['waist'],
+      'thigh': ['thigh'],
+      'resting_pulse': ['resting_pulse'],
+      'sleep_hours': ['sleep_hours'],
+    },
+  ),
+  'nutrition_logs': EntitySchema(
+    table: 'nutrition_logs',
+    tableOf: (db) => db.nutritionLogs,
+    insertDefaults: const {'date': '1970-01-01'},
+    groups: const {
+      'entry': ['date', 'label', 'kcal', 'protein', 'fat', 'water_ml'],
+    },
+  ),
+  'sport_goals': EntitySchema(
+    table: 'sport_goals',
+    tableOf: (db) => db.sportGoals,
+    groups: const {
+      'kcal': ['kcal'],
+      'protein': ['protein'],
+      'fat': ['fat'],
+      'water': ['water_ml'],
+    },
+  ),
+  'exercises': EntitySchema(
+    table: 'exercises',
+    tableOf: (db) => db.exercises,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'category': ['category'],
+      'description': ['description'],
+    },
+  ),
+  'training_plans': EntitySchema(
+    table: 'training_plans',
+    tableOf: (db) => db.trainingPlans,
+    insertDefaults: const {'name': ''},
+    groups: const {
+      'name': ['name'],
+      'kind': ['kind'],
+      'steps': ['steps'],
+    },
+  ),
+  'workout_sessions': EntitySchema(
+    table: 'workout_sessions',
+    tableOf: (db) => db.workoutSessions,
+    insertDefaults: const {'started_at': 0},
+    groups: const {
+      'data': ['plan_id', 'started_at', 'duration_seconds', 'results'],
     },
   ),
   'saving_goals': EntitySchema(

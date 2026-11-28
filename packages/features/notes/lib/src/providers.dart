@@ -24,3 +24,8 @@ final pinnedNotesProvider = StreamProvider<List<NoteItem>>(
 final projectNotesProvider = StreamProvider.family<List<NoteItem>, String>(
   (ref, projectId) => ref.watch(noteRepositoryProvider).watchByProject(projectId),
 );
+
+/// Notizen eines Lernbereichs.
+final learningAreaNotesProvider = StreamProvider.family<List<NoteItem>, String>(
+  (ref, areaId) => ref.watch(noteRepositoryProvider).watchByLearningArea(areaId),
+);
